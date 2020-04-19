@@ -61,12 +61,17 @@ class Tetris:
         }
     }
 
+    # COLORS = {
+    #     0: (255, 255, 255),
+    #     1: (247, 64, 99),
+    #     2: (0, 167, 247),
+    # }
+
     COLORS = {
         0: (255, 255, 255),
-        1: (247, 64, 99),
+        1: (0, 0, 0),
         2: (0, 167, 247),
     }
-
 
     def __init__(self):
         self.reset()
@@ -81,6 +86,7 @@ class Tetris:
         self.next_piece = self.bag.pop()
         self._new_round()
         self.score = 0
+        self.layout = [0]
         return self._get_board_props(self.board)
 
 
@@ -246,12 +252,12 @@ class Tetris:
 
         # For all rotations
         for rotation in rotations:
-            piece = Tetris.TETROMINOS[piece_id][rotation]
+            piece = Tetris.TETROMINOS[piece_id][rotation] # the possible rotation ex: [(0, 1), (1, 1), (1, 0), (2, 0)]
             min_x = min([p[0] for p in piece])
             max_x = max([p[0] for p in piece])
 
             # For all positions
-            for x in range(-min_x, Tetris.BOARD_WIDTH - max_x):
+            for x in range(-min_x, Tetris.BOARD_WIDTH - max_x): # ex: 0 to 9
                 pos = [x, 0]
 
                 # Drop piece
@@ -262,11 +268,14 @@ class Tetris:
                 # Valid move
                 if pos[1] >= 0:
                     board = self._add_piece_to_board(piece, pos)
-                    states[(x, rotation)] = self._get_board_props(board)
+                    states[(x, rotation)] = self._get_board_props(board) # returns (just increment value,angle):
+                                                                         # [status] only for one piece with all
+                                                                         # possible angles and positions in board
 
-        return states
-
-
+        return states, board
+    def get_board_state(self):
+        "'returns the bard status'"
+        return
     def get_state_size(self):
         '''Size of the state'''
         return 4
@@ -286,9 +295,13 @@ class Tetris:
             self.current_pos[1] += 1
         self.current_pos[1] -= 1
 
+        a, b = Tetris.get_next_states(self)
+        # ("stats")
+        # print(b)print
         # Update board and calculate score        
         self.board = self._add_piece_to_board(self._get_rotated_piece(), self.current_pos)
         lines_cleared, self.board = self._clear_lines(self.board)
+        # score = 1 + (lines_cleared ** 2) * Tetris.BOARD_WIDTH
         score = 1 + (lines_cleared ** 2) * Tetris.BOARD_WIDTH
         self.score += score
 
@@ -302,7 +315,14 @@ class Tetris:
 
     def render(self):
         '''Renders the current board'''
-        img = [Tetris.COLORS[p] for row in self._get_complete_board() for p in row]
+        #img = [Tetris.COLORS[p] for row in self._get_complete_board() for p in row]
+        img = []
+        for row in self._get_complete_board():
+            for p in row:
+                img.append(Tetris.COLORS[p])
+        #print(img)
+        #print(self._get_complete_board())
+        #print("nigga")
         img = np.array(img).reshape(Tetris.BOARD_HEIGHT, Tetris.BOARD_WIDTH, 3).astype(np.uint8)
         img = img[..., ::-1] # Convert RRG to BGR (used by cv2)
         img = Image.fromarray(img, 'RGB')

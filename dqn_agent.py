@@ -32,7 +32,7 @@ class DQNAgent:
 
     def __init__(self, state_size, mem_size=10000, discount=0.95,
                  epsilon=1, epsilon_min=0, epsilon_stop_episode=500,
-                 n_neurons=[32,32], activations=['relu', 'relu', 'linear'],
+                 n_neurons=[32,32], activations=['relu', 'relu', 'linear'], #last one linear
                  loss='mse', optimizer='adam', replay_start_size=None):
 
         assert len(activations) == len(n_neurons) + 1
@@ -55,13 +55,14 @@ class DQNAgent:
 
     def _build_model(self):
         '''Builds a Keras deep neural network model'''
-        model = Sequential()
-        model.add(Dense(self.n_neurons[0], input_dim=self.state_size, activation=self.activations[0]))
+        model = Sequential()    # 32  self.n_neurons[0]          #  4   self.state_size                     #relu
+        model.add(Dense(1600, input_dim=1, activation=self.activations[0]))
 
-        for i in range(1, len(self.n_neurons)):
-            model.add(Dense(self.n_neurons[i], activation=self.activations[i]))
+        for i in range(1, len(self.n_neurons)): # 1 to 2
+                            # self.n_neurons[i]
+            model.add(Dense(1600, activation=self.activations[i]))                # the second hidden layer
 
-        model.add(Dense(1, activation=self.activations[-1]))
+        model.add(Dense(1, activation=self.activations[-1], name='output'))                                # output layer
 
         model.compile(loss=self.loss, optimizer=self.optimizer)
         
@@ -82,17 +83,17 @@ class DQNAgent:
         '''Predicts the score for a certain state'''
         return self.model.predict(state)[0]
 
+    # *K I think this is never used
+    # def act(self, state):
+    #     '''Returns the expected score of a certain state'''
+    #     state = np.reshape(state, [1, self.state_size])
+    #     if random.random() <= self.epsilon:
+    #         return self.random_value()
+    #     else:
+    #         return self.predict_value(state)
 
-    def act(self, state):
-        '''Returns the expected score of a certain state'''
-        state = np.reshape(state, [1, self.state_size])
-        if random.random() <= self.epsilon:
-            return self.random_value()
-        else:
-            return self.predict_value(state)
 
-
-    def best_state(self, states):
+    def best_state(self, states): # states is the value of possible moves
         '''Returns the best state for a given collection of states'''
         max_value = None
         best_state = None
@@ -109,18 +110,28 @@ class DQNAgent:
 
         return best_state
 
-
-    def train(self, batch_size=32, epochs=3):
+    # *k train
+    def train(self, batch_size=1, epochs=1, board=[0] * 200, played_blocks=0):  # batch_size=32 epochs=3
         '''Trains the agent'''
-        n = len(self.memory)
-    
-        if n >= self.replay_start_size and n >= batch_size:
+        print("train")
+        print(board)
+        n = len(self.memory)  # this increases with the playing number of blocks
 
+        if n >= self.replay_start_size and n >= batch_size:  # replay_start_size original 2000 changed to 100
+            # batch_size changed to 1
+            # print("I am in")
             batch = random.sample(self.memory, batch_size)
 
             # Get the expected score for the next states, in batch (better performance)
+            # print("batch")
+            # print(batch)
             next_states = np.array([x[1] for x in batch])
-            next_qs = [x[0] for x in self.model.predict(next_states)]
+            # print("next_states")
+            # print(next_states)
+            next_qs = [x[0] for x in
+                       self.model.predict(next_states)]  # from random samples in predict the score for the next block
+            # print("next_qs")
+            # print(next_qs)
 
             x = []
             y = []
@@ -129,16 +140,65 @@ class DQNAgent:
             for i, (state, _, reward, done) in enumerate(batch):
                 if not done:
                     # Partial Q formula
+                    # print("i")
+                    # print(i)
                     new_q = reward + self.discount * next_qs[i]
+                    # print("if new_q")
+                    # print(new_q)
                 else:
                     new_q = reward
+                    # print("else new_q")
+                    # print(new_q)
 
                 x.append(state)
                 y.append(new_q)
 
+            # print("x")
+            # print(len(np.array(x)))
+            # print(np.array(x))
+            # print("y")
+            # print(len(np.array(y)))
+            # print(np.array(y))
             # Fit the model to the given values
-            self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
+            # x are the states ex: for batch of 3 [[ 0  7 20 27] [ 0 12 11 44] [ 0  3  7 15]]
+            # y are the rewards ex: for batch of 3 [-3.27968986 -3.80597708 -0.84219939]
+            #self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
 
             # Update the exploration variable
             if self.epsilon > self.epsilon_min:
                 self.epsilon -= self.epsilon_decay
+
+    # # train
+    # def train(self, batch_size=1, epochs=1): # batch_size=32 epochs=3
+    #     '''Trains the agent'''
+    #     n = len(self.memory)
+    #
+    #     if n >= self.replay_start_size and n >= batch_size:
+    #
+    #         batch = random.sample(self.memory, batch_size)
+    #
+    #         # Get the expected score for the next states, in batch (better performance)
+    #         next_states = np.array([x[1] for x in batch])
+    #         next_qs = [x[0] for x in self.model.predict(next_states)]
+    #
+    #         x = []
+    #         y = []
+    #         # Build xy structure to fit the model in batch (better performance)
+    #         for i, (state, _, reward, done) in enumerate(batch):
+    #             if not done:
+    #                 # Partial Q formula
+    #                 new_q = reward + self.discount * next_qs[i]
+    #             else:
+    #                 new_q = reward
+    #
+    #             x.append(state) # length 512
+    #             y.append(new_q)
+    #             print(np.array(y))
+    #
+    #         # Fit the model to the given values
+    #
+    #         self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
+    #
+    #         # Update the exploration variable
+    #         if self.epsilon > self.epsilon_min:
+    #             self.epsilon -= self.epsilon_decay
