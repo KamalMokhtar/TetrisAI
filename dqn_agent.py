@@ -120,6 +120,7 @@ class DQNAgent:
         if n >= self.replay_start_size and n >= batch_size:  # replay_start_size original 2000 changed to 100
             # batch_size changed to 1
             # print("I am in")
+
             batch = random.sample(self.memory, batch_size)
 
             # Get the expected score for the next states, in batch (better performance)
