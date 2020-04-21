@@ -19,7 +19,7 @@ def dqn():
     epochs = 1
     render_every = 1  # 50
     log_every = 1  # 50
-    replay_start_size = 2000
+    replay_start_size = 100 #2000
     train_every = 1
     n_neurons = [32, 32]
     render_delay = None
@@ -99,7 +99,7 @@ def dqn():
             reward, done = env.play(best_action[0], best_action[1], render=render,
                                     render_delay=render_delay)
 
-            agent.add_to_memory(current_state, next_states[best_action], reward, done)
+            agent.add_to_memory(board, current_state, next_states[best_action], reward, done)
             current_state = next_states[best_action]
             steps += 1
             # *k Train directly

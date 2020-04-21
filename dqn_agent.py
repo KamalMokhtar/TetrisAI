@@ -56,11 +56,11 @@ class DQNAgent:
     def _build_model(self):
         '''Builds a Keras deep neural network model'''
         model = Sequential()    # 32  self.n_neurons[0]          #  4   self.state_size                     #relu
-        model.add(Dense(1600, input_dim=1, activation=self.activations[0]))
+        model.add(Dense(self.n_neurons[0], input_dim=self.state_size, activation=self.activations[0]))
 
         for i in range(1, len(self.n_neurons)): # 1 to 2
-                            # self.n_neurons[i]
-            model.add(Dense(1600, activation=self.activations[i]))                # the second hidden layer
+                            # self.n_neurons[i] 1600
+            model.add(Dense(self.n_neurons[i], activation=self.activations[i]))                # the second hidden layer
 
         model.add(Dense(1, activation=self.activations[-1], name='output'))                                # output layer
 
@@ -69,9 +69,9 @@ class DQNAgent:
         return model
 
 
-    def add_to_memory(self, current_state, next_state, reward, done):
+    def add_to_memory(self, board, current_state, next_state, reward, done):
         '''Adds a play to the replay memory buffer'''
-        self.memory.append((current_state, next_state, reward, done))
+        self.memory.append((board, current_state, next_state, reward, done))
 
 
     def random_value(self):
@@ -116,7 +116,9 @@ class DQNAgent:
         print("train")
         print(board)
         n = len(self.memory)  # this increases with the playing number of blocks
-
+        print(n)
+        print(self.replay_start_size)
+        print(batch_size)
         if n >= self.replay_start_size and n >= batch_size:  # replay_start_size original 2000 changed to 100
             # batch_size changed to 1
             # print("I am in")
@@ -124,8 +126,8 @@ class DQNAgent:
             batch = random.sample(self.memory, batch_size)
 
             # Get the expected score for the next states, in batch (better performance)
-            # print("batch")
-            # print(batch)
+            print("batch")
+            print(batch)
             next_states = np.array([x[1] for x in batch])
             # print("next_states")
             # print(next_states)
@@ -138,7 +140,7 @@ class DQNAgent:
             y = []
 
             # Build xy structure to fit the model in batch (better performance)
-            for i, (state, _, reward, done) in enumerate(batch):
+            for i, (_, state, _, reward, done) in enumerate(batch):
                 if not done:
                     # Partial Q formula
                     # print("i")
