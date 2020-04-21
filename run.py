@@ -5,7 +5,8 @@ from statistics import mean, median
 import random
 from logs import CustomTensorBoard
 from tqdm import tqdm
-        
+from keras.models import load_model
+
 
 # Run dqn with Tetris
 def dqn():
@@ -13,11 +14,11 @@ def dqn():
     episodes = 2000
     max_steps = None
     epsilon_stop_episode = 1500
-    mem_size = 20000
+    mem_size = 2000000
     discount = 0.95
     batch_size = 512
     epochs = 1
-    render_every = 50
+    render_every = 100
     log_every = 50
     replay_start_size = 2000
     train_every = 1
@@ -49,16 +50,16 @@ def dqn():
         while not done and (not max_steps or steps < max_steps):
             next_states = env.get_next_states()
             best_state = agent.best_state(next_states.values())
-            
+
             best_action = None
             for action, state in next_states.items():
                 if state == best_state:
                     best_action = action
                     break
 
-            reward, done = env.play(best_action[0], best_action[1], render=render,
+            reward, done = env.play(best_action[0], best_action[1], log_dir, render=render,
                                     render_delay=render_delay)
-            
+
             agent.add_to_memory(current_state, next_states[best_action], reward, done)
             current_state = next_states[best_action]
             steps += 1
@@ -77,6 +78,8 @@ def dqn():
 
             log.log(episode, avg_score=avg_score, min_score=min_score,
                     max_score=max_score)
+
+        agent.model.save(log_dir + "/model.h5")
 
 
 if __name__ == "__main__":
