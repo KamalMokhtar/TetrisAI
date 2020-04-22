@@ -99,85 +99,27 @@ class DQNAgent:
     def best_board(self, boards): # states is the value of possible moves
         '''Returns the best board for a given collection of boards'''
         max_value = None
-        # best_state = None
         best_board = None
 
         if random.random() <= self.epsilon:
             return random.choice(list(boards))
-
         else:
-            # for state in states:
             for board in boards:
-                # print("board1")
-                # print(board)
-                # value = self.predict_value(np.reshape(state, [1, self.state_size]))
                 value = self.predict_value(np.reshape(board, [1, 200]))
-                # print("value")
-                # print(value)
                 if not max_value or value > max_value:
                     max_value = value
-                    # best_state = state
                     best_board = board
-                    # print("1")
-                    # print(best_board)
-
-        # return best_state
         return best_board
 
     # *k train
     def train(self, batch_size=1, epochs=1, board=[0] * 200, played_blocks=0):  # batch_size=32 epochs=3
         '''Trains the agent'''
-        # print("train")
-        # print(board)
         n = len(self.memory)  # this increases with the playing number of blocks
-        # print(n)
-        # print(self.replay_start_size)
-        # print(batch_size)
         if n >= self.replay_start_size and n >= batch_size:  # replay_start_size original 2000 changed to 100
-            # batch_size changed to 1
-            # print("I am in")
 
             batch = random.sample(self.memory, batch_size)
-            # print("batch")
-            # print(batch)
-            # Get the expected score for the next states, in batch (better performance)
-            # print("batch")
-            # print(batch)
-            # next_states = np.array([x[1] for x in batch])
             next_boards = np.array([x[1] for x in batch])
-            # converting next_boards to board_model_input
-            # print("next_boards")
-            # print(next_boards)
-
-            # # -----------------#
-            # # first extracting, maybe can be done better
-            # board_converted_array = np.array(next_boards)
-            # board_model_input = board_converted_array[0]
-            #
-            # for row in range(1, len(board_converted_array)):
-            #     board_model_input = np.concatenate((board_model_input, board_converted_array[row]), axis=None)
-            #
-            # # second extracting
-            # board_converted_array = board_model_input
-            # board_model_input = board_converted_array[0]
-            #
-            # for row in range(1, len(board_converted_array)):
-            #     board_model_input = np.concatenate((board_model_input, board_converted_array[row]), axis=None)
-            # # -----------------#
-
-            # next_qs = [x[0] for x in
-            #            self.model.predict(next_states)]  # from random samples in predict the score for the next block
-
-            # print("board_model_input")
-            # print(board_model_input)
-            # k = [board_model_input]
-            # print("k")
-            # print(k)
-            #
             next_board_qs = [x[0] for x in self.model.predict(next_boards)]
-            #
-            # print("next_qs")
-            # print(next_board_qs)
 
             x = []
             y = []
@@ -187,80 +129,15 @@ class DQNAgent:
             # def add_to_memory(self, current_board, next_board, reward, done):
             for i, (board, _, reward, done) in enumerate(batch):
                 if not done:
-                    # Partial Q formula
-                    # print("i")
-                    # print(i)
-                    # new_q = reward + self.discount * next_qs[i]
                     new_q = reward + self.discount * next_board_qs[i]
-                    # print("if new_q")
-                    # print(new_q)
                 else:
                     new_q = reward
-                    # print("else new_q")
-                    # print(new_q)
 
                 x.append(board)
                 y.append(new_q)
 
-            # board_converted = np.array(board)
-            # board_model_input = board_converted[0]
-            #
-            # for row in range(1, len(board_converted)):
-            #     board_model_input = np.concatenate((board_model_input, board_converted[row]), axis=None)
-            #
-            # print("board_model_input")
-            # print(board_model_input)
-            # print(len(board_model_input))
-
-            # print("x")
-            # print(len(np.array(x)))
-            # print(np.array(x))
-            # print("y")
-            # print(len(np.array(y)))
-
-            # print(np.array(y))
-            # Fit the model to the given values
-            # x are the states ex: for batch of 3 [[ 0  7 20 27] [ 0 12 11 44] [ 0  3  7 15]]
-            # y are the rewards ex: for batch of 3 [-3.27968986 -3.80597708 -0.84219939]
-            # np.array(x)
-            # print("train")
             self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
 
             # Update the exploration variable
             if self.epsilon > self.epsilon_min:
                 self.epsilon -= self.epsilon_decay
-
-    # # train
-    # def train(self, batch_size=1, epochs=1): # batch_size=32 epochs=3
-    #     '''Trains the agent'''
-    #     n = len(self.memory)
-    #
-    #     if n >= self.replay_start_size and n >= batch_size:
-    #
-    #         batch = random.sample(self.memory, batch_size)
-    #
-    #         # Get the expected score for the next states, in batch (better performance)
-    #         next_states = np.array([x[1] for x in batch])
-    #         next_qs = [x[0] for x in self.model.predict(next_states)]
-    #
-    #         x = []
-    #         y = []
-    #         # Build xy structure to fit the model in batch (better performance)
-    #         for i, (state, _, reward, done) in enumerate(batch):
-    #             if not done:
-    #                 # Partial Q formula
-    #                 new_q = reward + self.discount * next_qs[i]
-    #             else:
-    #                 new_q = reward
-    #
-    #             x.append(state) # length 512
-    #             y.append(new_q)
-    #             print(np.array(y))
-    #
-    #         # Fit the model to the given values
-    #
-    #         self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
-    #
-    #         # Update the exploration variable
-    #         if self.epsilon > self.epsilon_min:
-    #             self.epsilon -= self.epsilon_decay

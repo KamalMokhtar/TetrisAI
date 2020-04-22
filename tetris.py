@@ -238,7 +238,6 @@ class Tetris:
         sum_height, max_height, min_height = self._height(board)
         return [lines, holes, total_bumpiness, sum_height]
 
-    # def get_next_states(self):
     def get_next_boards(self):
         '''Get all possible next states'''
         # states = {}
@@ -284,7 +283,6 @@ class Tetris:
         '''Size of the state'''
         return 4
 
-
     def play(self, x, rotation, render=False, render_delay=None):
         '''Makes a play given a position and a rotation, returning the reward and if the game is over'''
         self.current_pos = [x, 0]
@@ -299,13 +297,8 @@ class Tetris:
             self.current_pos[1] += 1
         self.current_pos[1] -= 1
 
-        # a, b = Tetris.get_next_states(self)
-        # ("stats")
-        # print(b)print
-        # Update board and calculate score        
         self.board = self._add_piece_to_board(self._get_rotated_piece(), self.current_pos)
         lines_cleared, self.board = self._clear_lines(self.board)
-        # score = 1 + (lines_cleared ** 2) * Tetris.BOARD_WIDTH
         score = 1 + (lines_cleared ** 2) * Tetris.BOARD_WIDTH
         self.score += score
 
@@ -319,14 +312,11 @@ class Tetris:
 
     def render(self):
         '''Renders the current board'''
-        #img = [Tetris.COLORS[p] for row in self._get_complete_board() for p in row]
+
         img = []
         for row in self._get_complete_board():
             for p in row:
                 img.append(Tetris.COLORS[p])
-        #print(img)
-        #print(self._get_complete_board())
-        #print("nigga")
         img = np.array(img).reshape(Tetris.BOARD_HEIGHT, Tetris.BOARD_WIDTH, 3).astype(np.uint8)
         img = img[..., ::-1] # Convert RRG to BGR (used by cv2)
         img = Image.fromarray(img, 'RGB')
