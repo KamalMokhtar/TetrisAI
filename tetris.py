@@ -87,7 +87,8 @@ class Tetris:
         self._new_round()
         self.score = 0
         self.layout = [0]
-        return self._get_board_props(self.board)
+        return self.board
+        #return self._get_board_props(self.board)
 
 
     def _get_rotated_piece(self):
@@ -237,10 +238,11 @@ class Tetris:
         sum_height, max_height, min_height = self._height(board)
         return [lines, holes, total_bumpiness, sum_height]
 
-
-    def get_next_states(self):
+    # def get_next_states(self):
+    def get_next_boards(self):
         '''Get all possible next states'''
-        states = {}
+        # states = {}
+        board_states = {}
         piece_id = self.current_piece
         
         if piece_id == 6: 
@@ -268,14 +270,16 @@ class Tetris:
                 # Valid move
                 if pos[1] >= 0:
                     board = self._add_piece_to_board(piece, pos)
-                    states[(x, rotation)] = self._get_board_props(board) # returns (just increment value,angle):
+                    board_states[(x, rotation)] = board
+                    #states[(x, rotation)] = self._get_board_props(board) # returns (just increment value,angle):
                                                                          # [status] only for one piece with all
                                                                          # possible angles and positions in board
+        return board_states
 
-        return states, board
     def get_board_state(self):
         "'returns the bard status'"
         return
+
     def get_state_size(self):
         '''Size of the state'''
         return 4
@@ -295,7 +299,7 @@ class Tetris:
             self.current_pos[1] += 1
         self.current_pos[1] -= 1
 
-        a, b = Tetris.get_next_states(self)
+        # a, b = Tetris.get_next_states(self)
         # ("stats")
         # print(b)print
         # Update board and calculate score        
