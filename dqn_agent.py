@@ -3,6 +3,7 @@ from keras.layers import Dense
 from collections import deque
 import numpy as np
 import random
+from datetime import datetime
 
 
 # Deep Q Learning Agent + Maximin
@@ -14,7 +15,6 @@ import random
 # in constrast to the traditional way of finding the best
 # action for a particular state.
 class DQNAgent:
-
     '''Deep Q Learning Agent + Maximin
 
     Args:
@@ -33,7 +33,8 @@ class DQNAgent:
 
     def __init__(self, state_size, mem_size=10000, discount=0.95,
                  epsilon=1, epsilon_min=0, epsilon_stop_episode=500,
-                 n_neurons=[1600,1600], activations=['relu', 'relu', 'linear'], #last one linear n_neurons=[32,32]
+                 n_neurons=[32, 32, 32, 32], activations=['relu', 'relu', 'relu', 'relu', 'linear'],
+                 # last one linear n_neurons=[32,32]
                  loss='mse', optimizer='adam', replay_start_size=None):
 
         assert len(activations) == len(n_neurons) + 1
@@ -51,22 +52,26 @@ class DQNAgent:
         if not replay_start_size:
             replay_start_size = mem_size / 2
         self.replay_start_size = replay_start_size
-        self.model = self._build_model()
+        self.model = self._build_model(fetch_old_model=False)
 
-
-    def _build_model(self):
+    def _build_model(self, fetch_old_model):
         '''Builds a Keras deep neural network model'''
-        model = Sequential()    # 32  self.n_neurons[0]          #  4   self.state_size                     #relu
-        model.add(Dense(self.n_neurons[0], input_dim=200, activation=self.activations[0]))
+        if not fetch_old_model:
+            print("new model made")
+            model = Sequential()  # 32  self.n_neurons[0]          #  4   self.state_size                     #relu
+            model.add(Dense(self.n_neurons[0], input_dim=200, activation=self.activations[0]))
 
-        for i in range(1, len(self.n_neurons)): # 1 to 2
-                            # self.n_neurons[i] 1600
-            model.add(Dense(self.n_neurons[i], activation=self.activations[i]))                # the second hidden layer
+            for i in range(1, len(self.n_neurons)):  # 1 to 2
+                # self.n_neurons[i] 1600
+                model.add(Dense(self.n_neurons[i], activation=self.activations[i]))  # the second hidden layer
 
-        model.add(Dense(1, activation=self.activations[-1], name='output'))                                # output layer
+            model.add(Dense(1, activation=self.activations[-1], name='output'))  # output layer
 
-        model.compile(loss=self.loss, optimizer=self.optimizer)
-        
+            model.compile(loss=self.loss, optimizer=self.optimizer)
+        else:
+            print("old model returned")
+            # put the name of the model file you want
+            model = load_model('models/my_model.h5')
         return model
 
     # current_state, next_state,
@@ -74,7 +79,6 @@ class DQNAgent:
         '''Adds a play to the replay memory buffer'''
         # current_state, next_state,
         self.memory.append((current_board, next_board, reward, done))
-
 
     def random_value(self):
         '''Random score for a certain action'''
@@ -95,8 +99,8 @@ class DQNAgent:
     #     else:
     #         return self.predict_value(state)
 
-        # def best_state(self, states):
-    def best_board(self, boards): # states is the value of possible moves
+    # def best_state(self, states):
+    def best_board(self, boards):  # states is the value of possible moves
         '''Returns the best board for a given collection of boards'''
         max_value = None
         best_board = None
@@ -141,3 +145,6 @@ class DQNAgent:
             # Update the exploration variable
             if self.epsilon > self.epsilon_min:
                 self.epsilon -= self.epsilon_decay
+
+    def model_save(self, time_frame):
+        self.model.save(f'models/my_model-{time_frame}-h5')  # creates a HDF5 file

@@ -88,7 +88,7 @@ class Tetris:
         self.score = 0
         self.layout = [0]
         return self.board
-        #return self._get_board_props(self.board)
+        #return self._x_board_props(self.board)
 
 
     def _get_rotated_piece(self):
@@ -322,6 +322,6 @@ class Tetris:
         img = Image.fromarray(img, 'RGB')
         img = img.resize((Tetris.BOARD_WIDTH * 25, Tetris.BOARD_HEIGHT * 25))
         img = np.array(img)
-        cv2.putText(img, str(self.score), (22, 22), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1)
+        cv2.putText(img, str(self.score), (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 20, 100), 1)
         cv2.imshow('image', np.array(img))
         cv2.waitKey(1)

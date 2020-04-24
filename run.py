@@ -7,37 +7,39 @@ from logs import CustomTensorBoard
 from tqdm import tqdm
 import itertools
 
+
 # Run dqn with Tetris
 def dqn():
     env = Tetris()
-    episodes = 200000  # 2000
+    episodes = 7000  # 2000
     max_steps = None
-    epsilon_stop_episode = 1500
-    mem_size = 20000
+    epsilon_stop_episode = 2000
+    mem_size = 20000  # 20000
     discount = 0.95
     batch_size = 512  # 512
     epochs = 1
     render_every = 100  # 50
     log_every = 50  # 50
-    replay_start_size = 100 #2000
+    replay_start_size = 7000  # 2000
     train_every = 1
-    n_neurons = [32, 32]
+    n_neurons = [2, 160, 160, 160]
     render_delay = None
-    activations = ['relu', 'relu', 'linear']
+    activations = ['relu', 'relu', 'relu', 'relu', 'linear']
+    model_save = True
 
     agent = DQNAgent(env.get_state_size(),
                      n_neurons=n_neurons, activations=activations,
                      epsilon_stop_episode=epsilon_stop_episode, mem_size=mem_size,
                      discount=discount, replay_start_size=replay_start_size)
 
-    log_dir = f'logs/tetris-nn={str(n_neurons)}-mem={mem_size}-bs={batch_size}-e={epochs}-{datetime.now().strftime("%Y%m%d-%H%M%S")}'
+    time_frame = datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_dir = f'logs/tetris-nn={str(n_neurons)}-mem={mem_size}-bs={batch_size}-e={epochs}-{time_frame}'
     log = CustomTensorBoard(log_dir=log_dir)
 
     scores = []
 
     for episode in tqdm(range(episodes)):
 
-        # current_state = env.reset()
         current_board = env.reset()
         done = False
         steps = 0
@@ -54,7 +56,7 @@ def dqn():
 
             best_action = None
 
-            for action, board in next_boards.items(): # Find the corresponding action for the desired board
+            for action, board in next_boards.items():  # Find the corresponding action for the desired board
                 if board == best_board:
                     best_action = action
                     break
@@ -64,7 +66,8 @@ def dqn():
                                     render_delay=render_delay)
 
             # agent.add_to_memory(current_state, next_states[best_action], reward, done)
-            agent.add_to_memory(list(itertools.chain.from_iterable(current_board)), list(itertools.chain.from_iterable(next_boards[best_action])), reward, done)
+            agent.add_to_memory(list(itertools.chain.from_iterable(current_board)),
+                                list(itertools.chain.from_iterable(next_boards[best_action])), reward, done)
             current_board = next_boards[best_action]
             steps += 1
 
@@ -81,6 +84,9 @@ def dqn():
 
             log.log(episode, avg_score=avg_score, min_score=min_score,
                     max_score=max_score)
+    # save the model
+    if model_save:
+        agent.model_save(time_frame)
 
 
 if __name__ == "__main__":
