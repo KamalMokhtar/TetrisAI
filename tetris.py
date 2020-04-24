@@ -7,6 +7,7 @@ from time import sleep
 
 # Tetris game class
 class Tetris:
+
     '''Tetris game class'''
 
     # BOARD
@@ -17,47 +18,47 @@ class Tetris:
     BOARD_HEIGHT = 20
 
     TETROMINOS = {
-        0: {  # I
-            0: [(0, 0), (1, 0), (2, 0), (3, 0)],
-            90: [(1, 0), (1, 1), (1, 2), (1, 3)],
-            180: [(3, 0), (2, 0), (1, 0), (0, 0)],
-            270: [(1, 3), (1, 2), (1, 1), (1, 0)],
+        0: { # I
+            0: [(0,0), (1,0), (2,0), (3,0)],
+            90: [(1,0), (1,1), (1,2), (1,3)],
+            180: [(3,0), (2,0), (1,0), (0,0)],
+            270: [(1,3), (1,2), (1,1), (1,0)],
         },
-        1: {  # T
-            0: [(1, 0), (0, 1), (1, 1), (2, 1)],
-            90: [(0, 1), (1, 2), (1, 1), (1, 0)],
-            180: [(1, 2), (2, 1), (1, 1), (0, 1)],
-            270: [(2, 1), (1, 0), (1, 1), (1, 2)],
+        1: { # T
+            0: [(1,0), (0,1), (1,1), (2,1)],
+            90: [(0,1), (1,2), (1,1), (1,0)],
+            180: [(1,2), (2,1), (1,1), (0,1)],
+            270: [(2,1), (1,0), (1,1), (1,2)],
         },
-        2: {  # L
-            0: [(1, 0), (1, 1), (1, 2), (2, 2)],
-            90: [(0, 1), (1, 1), (2, 1), (2, 0)],
-            180: [(1, 2), (1, 1), (1, 0), (0, 0)],
-            270: [(2, 1), (1, 1), (0, 1), (0, 2)],
+        2: { # L
+            0: [(1,0), (1,1), (1,2), (2,2)],
+            90: [(0,1), (1,1), (2,1), (2,0)],
+            180: [(1,2), (1,1), (1,0), (0,0)],
+            270: [(2,1), (1,1), (0,1), (0,2)],
         },
-        3: {  # J
-            0: [(1, 0), (1, 1), (1, 2), (0, 2)],
-            90: [(0, 1), (1, 1), (2, 1), (2, 2)],
-            180: [(1, 2), (1, 1), (1, 0), (2, 0)],
-            270: [(2, 1), (1, 1), (0, 1), (0, 0)],
+        3: { # J
+            0: [(1,0), (1,1), (1,2), (0,2)],
+            90: [(0,1), (1,1), (2,1), (2,2)],
+            180: [(1,2), (1,1), (1,0), (2,0)],
+            270: [(2,1), (1,1), (0,1), (0,0)],
         },
-        4: {  # Z
-            0: [(0, 0), (1, 0), (1, 1), (2, 1)],
-            90: [(0, 2), (0, 1), (1, 1), (1, 0)],
-            180: [(2, 1), (1, 1), (1, 0), (0, 0)],
-            270: [(1, 0), (1, 1), (0, 1), (0, 2)],
+        4: { # Z
+            0: [(0,0), (1,0), (1,1), (2,1)],
+            90: [(0,2), (0,1), (1,1), (1,0)],
+            180: [(2,1), (1,1), (1,0), (0,0)],
+            270: [(1,0), (1,1), (0,1), (0,2)],
         },
-        5: {  # S
-            0: [(2, 0), (1, 0), (1, 1), (0, 1)],
-            90: [(0, 0), (0, 1), (1, 1), (1, 2)],
-            180: [(0, 1), (1, 1), (1, 0), (2, 0)],
-            270: [(1, 2), (1, 1), (0, 1), (0, 0)],
+        5: { # S
+            0: [(2,0), (1,0), (1,1), (0,1)],
+            90: [(0,0), (0,1), (1,1), (1,2)],
+            180: [(0,1), (1,1), (1,0), (2,0)],
+            270: [(1,2), (1,1), (0,1), (0,0)],
         },
-        6: {  # O
-            0: [(1, 0), (2, 0), (1, 1), (2, 1)],
-            90: [(1, 0), (2, 0), (1, 1), (2, 1)],
-            180: [(1, 0), (2, 0), (1, 1), (2, 1)],
-            270: [(1, 0), (2, 0), (1, 1), (2, 1)],
+        6: { # O
+            0: [(1,0), (2,0), (1,1), (2,1)],
+            90: [(1,0), (2,0), (1,1), (2,1)],
+            180: [(1,0), (2,0), (1,1), (2,1)],
+            270: [(1,0), (2,0), (1,1), (2,1)],
         }
     }
 
@@ -67,9 +68,11 @@ class Tetris:
         2: (0, 167, 247),
     }
 
+
     def __init__(self):
         self.reset()
 
+    
     def reset(self):
         '''Resets the game, returning the current state'''
         self.board = [[0] * Tetris.BOARD_WIDTH for _ in range(Tetris.BOARD_HEIGHT)]
@@ -80,11 +83,13 @@ class Tetris:
         self._new_round()
         self.score = 0
         self.linestracker = [0, 0, 0, 0, 0]
-        return np.reshape(self.board, [200]).tolist()
+        return np.concatenate((np.sum(self.board, 0), np.sum(self.board, 1))).tolist()
+
 
     def _get_rotated_piece(self):
         '''Returns the current piece, including rotation'''
         return Tetris.TETROMINOS[self.current_piece][self.current_rotation]
+
 
     def _get_complete_board(self):
         '''Returns the complete board, including the current piece'''
@@ -95,6 +100,7 @@ class Tetris:
             board[y][x] = Tetris.MAP_PLAYER
         return board
 
+
     def get_game_score(self):
         '''Returns the current game score.
 
@@ -102,6 +108,7 @@ class Tetris:
         For lines cleared, it is used BOARD_WIDTH * lines_cleared ^ 2.
         '''
         return self.score
+    
 
     def _new_round(self):
         '''Starts a new round (new piece)'''
@@ -109,7 +116,7 @@ class Tetris:
         if len(self.bag) == 0:
             self.bag = list(range(len(Tetris.TETROMINOS)))
             random.shuffle(self.bag)
-
+        
         self.current_piece = self.next_piece
         self.next_piece = self.bag.pop()
         self.current_pos = [3, 0]
@@ -117,6 +124,7 @@ class Tetris:
 
         if self._check_collision(self._get_rotated_piece(), self.current_pos):
             self.game_over = True
+
 
     def _check_collision(self, piece, pos):
         '''Check if there is a collision between the current piece and the board'''
@@ -128,6 +136,7 @@ class Tetris:
                     or self.board[y][x] == Tetris.MAP_BLOCK:
                 return True
         return False
+
 
     def _rotate(self, angle):
         '''Change the current rotation'''
@@ -142,12 +151,14 @@ class Tetris:
 
         self.current_rotation = r
 
+
     def _add_piece_to_board(self, piece, pos):
-        '''Place a piece in the board, returning the resulting board'''
+        '''Place a piece in the board, returning the resulting board'''        
         board = [x[:] for x in self.board]
         for x, y in piece:
             board[y + pos[1]][x + pos[0]] = Tetris.MAP_BLOCK
         return board
+
 
     def _clear_lines(self, board):
         '''Clears completed lines in a board'''
@@ -160,6 +171,7 @@ class Tetris:
                 board.insert(0, [0 for _ in range(Tetris.BOARD_WIDTH)])
         return len(lines_to_clear), board
 
+
     def _number_of_holes(self, board):
         '''Number of holes in the board (empty sqquare with at least one block above it)'''
         holes = 0
@@ -168,9 +180,10 @@ class Tetris:
             i = 0
             while i < Tetris.BOARD_HEIGHT and col[i] != Tetris.MAP_BLOCK:
                 i += 1
-            holes += len([x for x in col[i + 1:] if x == Tetris.MAP_EMPTY])
+            holes += len([x for x in col[i+1:] if x == Tetris.MAP_EMPTY])
 
         return holes
+
 
     def _bumpiness(self, board):
         '''Sum of the differences of heights between pair of columns'''
@@ -183,13 +196,14 @@ class Tetris:
             while i < Tetris.BOARD_HEIGHT and col[i] != Tetris.MAP_BLOCK:
                 i += 1
             min_ys.append(i)
-
+        
         for i in range(len(min_ys) - 1):
-            bumpiness = abs(min_ys[i] - min_ys[i + 1])
+            bumpiness = abs(min_ys[i] - min_ys[i+1])
             max_bumpiness = max(bumpiness, max_bumpiness)
-            total_bumpiness += abs(min_ys[i] - min_ys[i + 1])
+            total_bumpiness += abs(min_ys[i] - min_ys[i+1])
 
         return total_bumpiness, max_bumpiness
+
 
     def _height(self, board):
         '''Sum and maximum height of the board'''
@@ -210,6 +224,7 @@ class Tetris:
 
         return sum_height, max_height, min_height
 
+
     def _get_board_props(self, board):
         '''Get properties of the board'''
         lines, board = self._clear_lines(board)
@@ -218,12 +233,13 @@ class Tetris:
         sum_height, max_height, min_height = self._height(board)
         return [lines, holes, total_bumpiness, sum_height]
 
+
     def get_next_states(self):
         '''Get all possible next states'''
         states = {}
         piece_id = self.current_piece
-
-        if piece_id == 6:
+        
+        if piece_id == 6: 
             rotations = [0]
         elif piece_id == 0:
             rotations = [0, 90]
@@ -248,12 +264,14 @@ class Tetris:
                 # Valid move
                 if pos[1] >= 0:
                     board = self._add_piece_to_board(piece, pos)
-                    states[(x, rotation)] = np.reshape(board, [200]).tolist()
+                    states[(x, rotation)] = np.concatenate((np.sum(board, 0), np.sum(board, 1))).tolist()
         return states
+
 
     def get_state_size(self):
         '''Size of the state'''
-        return 200
+        return 30
+
 
     def play(self, x, rotation, log_dir, render=False, render_delay=None):
         '''Makes a play given a position and a rotation, returning the reward and if the game is over'''
@@ -269,12 +287,13 @@ class Tetris:
             self.current_pos[1] += 1
         self.current_pos[1] -= 1
 
-        # Update board and calculate score
+        # Update board and calculate score        
         self.board = self._add_piece_to_board(self._get_rotated_piece(), self.current_pos)
         lines_cleared, self.board = self._clear_lines(self.board)
         score = 1 + (lines_cleared ** 2) * Tetris.BOARD_WIDTH
         self.linestracker[lines_cleared] = self.linestracker[lines_cleared] + 1
         self.score += score
+        reward = score/sum(self._get_board_props(self.board))
 
         # Start new round
         self._new_round()
@@ -282,15 +301,17 @@ class Tetris:
             array = np.array(self.linestracker).reshape([1, 5])
             with open(log_dir + "/linesfile.txt", 'a') as linesfile:
                 np.savetxt(linesfile, array, fmt="%d", delimiter=' ')
-            score -= 2
+            score -= 1
+            reward -= 1
 
-        return score, self.game_over
+        return score, self.game_over, reward
+
 
     def render(self):
         '''Renders the current board'''
         img = [Tetris.COLORS[p] for row in self._get_complete_board() for p in row]
         img = np.array(img).reshape(Tetris.BOARD_HEIGHT, Tetris.BOARD_WIDTH, 3).astype(np.uint8)
-        img = img[..., ::-1]  # Convert RRG to BGR (used by cv2)
+        img = img[..., ::-1] # Convert RRG to BGR (used by cv2)
         img = Image.fromarray(img, 'RGB')
         img = img.resize((Tetris.BOARD_WIDTH * 25, Tetris.BOARD_HEIGHT * 25))
         img = np.array(img)

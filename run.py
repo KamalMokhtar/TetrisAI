@@ -6,25 +6,25 @@ import random
 from logs import CustomTensorBoard
 from tqdm import tqdm
 from keras.models import load_model
-
+        
 
 # Run dqn with Tetris
 def dqn():
     env = Tetris()
-    episodes = 2000
+    episodes = 100000
     max_steps = None
-    epsilon_stop_episode = 1500
-    mem_size = 2000000
+    epsilon_stop_episode = 99500
+    mem_size = 30000
     discount = 0.95
     batch_size = 512
     epochs = 1
-    render_every = 100
+    render_every = 10000
     log_every = 50
     replay_start_size = 2000
     train_every = 1
-    n_neurons = [32, 32]
+    n_neurons = [256, 128, 64, 64, 32, 32]
     render_delay = None
-    activations = ['relu', 'relu', 'linear']
+    activations = ['relu', 'relu', 'relu', 'relu','relu', 'relu', 'linear']
 
     agent = DQNAgent(env.get_state_size(),
                      n_neurons=n_neurons, activations=activations,
@@ -57,9 +57,9 @@ def dqn():
                     best_action = action
                     break
 
-            reward, done = env.play(best_action[0], best_action[1], log_dir, render=render,
+            score, done, reward = env.play(best_action[0], best_action[1], log_dir, render=render,
                                     render_delay=render_delay)
-
+            
             agent.add_to_memory(current_state, next_states[best_action], reward, done)
             current_state = next_states[best_action]
             steps += 1
