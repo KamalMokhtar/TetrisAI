@@ -18,14 +18,18 @@ def dqn():
     discount = 0.95
     batch_size = 512  # 512
     epochs = 1
-    render_every = 100  # 50
+    render_every = 200  # 50
     log_every = 50  # 50
     replay_start_size = 7000  # 2000
     train_every = 1
-    n_neurons = [2, 160, 160, 160]
+    n_neurons = [160, 160, 160, 160, 160]
     render_delay = None
-    activations = ['relu', 'relu', 'relu', 'relu', 'linear']
-    model_save = True
+    activations = ['relu', 'relu', 'linear', 'relu', 'relu', 'linear']
+    # if model play put agent_train False
+    # if model train, put both True
+    model_save = False
+    # if not training put the right model name you want to retrieve in _build_model function
+    agent_train = False
 
     agent = DQNAgent(env.get_state_size(),
                      n_neurons=n_neurons, activations=activations,
@@ -74,7 +78,7 @@ def dqn():
         scores.append(env.get_game_score())
 
         # Train
-        if episode % train_every == 0:
+        if episode % train_every == 0 and agent_train:
             agent.train(batch_size=batch_size, epochs=epochs)
         # Logs
         if log_every and episode and episode % log_every == 0:
@@ -85,7 +89,7 @@ def dqn():
             log.log(episode, avg_score=avg_score, min_score=min_score,
                     max_score=max_score)
     # save the model
-    if model_save:
+    if model_save and agent_train:
         agent.model_save(time_frame)
 
 

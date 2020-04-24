@@ -33,7 +33,7 @@ class DQNAgent:
 
     def __init__(self, state_size, mem_size=10000, discount=0.95,
                  epsilon=1, epsilon_min=0, epsilon_stop_episode=500,
-                 n_neurons=[32, 32, 32, 32], activations=['relu', 'relu', 'relu', 'relu', 'linear'],
+                 n_neurons=[32, 32, 32, 32,32], activations=['relu', 'relu', 'linear', 'relu', 'relu', 'linear'],
                  # last one linear n_neurons=[32,32]
                  loss='mse', optimizer='adam', replay_start_size=None):
 
@@ -52,7 +52,7 @@ class DQNAgent:
         if not replay_start_size:
             replay_start_size = mem_size / 2
         self.replay_start_size = replay_start_size
-        self.model = self._build_model(fetch_old_model=False)
+        self.model = self._build_model(fetch_old_model=True)
 
     def _build_model(self, fetch_old_model):
         '''Builds a Keras deep neural network model'''
@@ -71,7 +71,7 @@ class DQNAgent:
         else:
             print("old model returned")
             # put the name of the model file you want
-            model = load_model('models/my_model.h5')
+            model = load_model('models/my_model-20200424-021658-h5')
         return model
 
     # current_state, next_state,
