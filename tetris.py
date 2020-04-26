@@ -83,7 +83,7 @@ class Tetris:
         self._new_round()
         self.score = 0
         self.linestracker = [0, 0, 0, 0, 0]
-        return np.concatenate((np.sum(self.board, 0), np.sum(self.board, 1))).tolist()
+        return self.board
 
 
     def _get_rotated_piece(self):
@@ -264,13 +264,13 @@ class Tetris:
                 # Valid move
                 if pos[1] >= 0:
                     board = self._add_piece_to_board(piece, pos)
-                    states[(x, rotation)] = np.concatenate((np.sum(board, 0), np.sum(board, 1))).tolist()
+                    states[(x, rotation)] = board
         return states
 
 
     def get_state_size(self):
         '''Size of the state'''
-        return 30
+        return (20, 10, 1)
 
 
     def play(self, x, rotation, log_dir, render=False, render_delay=None):
@@ -293,7 +293,7 @@ class Tetris:
         score = 1 + (lines_cleared ** 2) * Tetris.BOARD_WIDTH
         self.linestracker[lines_cleared] = self.linestracker[lines_cleared] + 1
         self.score += score
-        reward = score/sum(self._get_board_props(self.board))
+        reward = score
 
         # Start new round
         self._new_round()

@@ -1,5 +1,5 @@
 from keras.models import Sequential, save_model, load_model
-from keras.layers import Dense
+from keras.layers import Dense, Flatten, Conv2D
 from collections import deque
 import numpy as np
 import random
@@ -58,11 +58,13 @@ class DQNAgent:
         '''Builds a Keras deep neural network model'''
         model = Sequential()
 
-        model.add(Dense(self.n_neurons[0], input_dim=self.state_size, activation=self.activations[0]))
-
+        model.add(Conv2D(32, kernel_size=(20,1), strides=(1,1), padding='same',
+                         input_shape=self.state_size, activation=self.activations[0]))
+        model.add(Conv2D(kernel_size=(1, 10), strides=(1,1), activation='relu', filters=32, padding='same'))
+        model.add(Conv2D(kernel_size=(4, 4), strides=(1,1), activation='relu', filters=16, padding='same'))
         for i in range(1, len(self.n_neurons)):
             model.add(Dense(self.n_neurons[i], activation=self.activations[i]))
-
+        model.add(Flatten())
         model.add(Dense(1, activation=self.activations[-1]))
 
         model.compile(loss=self.loss, optimizer=self.optimizer)
@@ -104,7 +106,7 @@ class DQNAgent:
 
         else:
             for state in states:
-                value = self.predict_value(np.reshape(state, [1, self.state_size]))
+                value = self.predict_value(np.reshape(state, (1,) + (self.state_size)  ))
                 if not max_value or value > max_value:
                     max_value = value
                     best_state = state
@@ -122,6 +124,7 @@ class DQNAgent:
 
             # Get the expected score for the next states, in batch (better performance)
             next_states = np.array([x[1] for x in batch])
+            next_states =np.reshape(next_states, (batch_size, 20, 10, 1))
             next_qs = [x[0] for x in self.model.predict(next_states)]
 
             x = []
@@ -140,8 +143,8 @@ class DQNAgent:
                 y.append(new_q)
 
             # Fit the model to the given values
-
-            self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
+            x = np.reshape(x, (batch_size, 20, 10, 1))
+            self.model.fit(x, np.array(y), epochs=epochs, verbose=0)
 
             # Update the exploration variable
             if self.epsilon > self.epsilon_min:

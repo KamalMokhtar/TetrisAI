@@ -16,15 +16,15 @@ def dqn():
     epsilon_stop_episode = 99500
     mem_size = 30000
     discount = 0.95
-    batch_size = 512
+    batch_size = 2
     epochs = 1
     render_every = 10000
     log_every = 50
     replay_start_size = 2000
     train_every = 1
-    n_neurons = [256, 128, 64, 64, 32, 32]
+    n_neurons = [256, 32, 16]
     render_delay = None
-    activations = ['relu', 'relu', 'relu', 'relu','relu', 'relu', 'linear']
+    activations = ['relu', 'relu', 'relu', 'linear']
 
     agent = DQNAgent(env.get_state_size(),
                      n_neurons=n_neurons, activations=activations,
