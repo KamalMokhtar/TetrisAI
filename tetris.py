@@ -307,6 +307,17 @@ class Tetris:
         if self.game_over:
             score -= 2
 
+
+        # prior_holes = 1
+        # prior_bumpiness = 3
+        # prior_height = 2
+        # devider = [prior_holes, prior_bumpiness, prior_height]
+        #
+        # prop = self._get_board_props(self.board)
+        # # print("prop")
+        # # print(prop)
+        # model_reward = [(i+score) / j for i, j in zip(prop[1:4], devider)]
+
         return score, self.game_over
 
 

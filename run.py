@@ -11,12 +11,12 @@ import itertools
 # Run dqn with Tetris
 def dqn():
     env = Tetris()
-    episodes = 7000  # 2000
+    episodes = 200000  # 2000
     max_steps = None
-    epsilon_stop_episode = 2000
-    mem_size = 20000  # 20000
+    epsilon_stop_episode = 190000# 1500
+    mem_size = 2000000  # 20000
     discount = 0.95
-    batch_size = 512  # 512
+    batch_size = 3000  # 512
     epochs = 1
     render_every = 200  # 50
     log_every = 50  # 50
@@ -24,12 +24,12 @@ def dqn():
     train_every = 1
     n_neurons = [160, 160, 160, 160, 160]
     render_delay = None
-    activations = ['relu', 'relu', 'linear', 'relu', 'relu', 'linear']
+    activations = ['relu', 'relu', 'relu', 'relu', 'relu', 'linear']
     # if model play put agent_train False
     # if model train, put both True
-    model_save = False
+    model_save = True
     # if not training put the right model name you want to retrieve in _build_model function
-    agent_train = False
+    agent_train = True
 
     agent = DQNAgent(env.get_state_size(),
                      n_neurons=n_neurons, activations=activations,
@@ -72,13 +72,14 @@ def dqn():
             # agent.add_to_memory(current_state, next_states[best_action], reward, done)
             agent.add_to_memory(list(itertools.chain.from_iterable(current_board)),
                                 list(itertools.chain.from_iterable(next_boards[best_action])), reward, done)
+
             current_board = next_boards[best_action]
             steps += 1
 
         scores.append(env.get_game_score())
 
         # Train
-        if episode % train_every == 0 and agent_train:
+        if episode % train_every == 0:# and agent_train:
             agent.train(batch_size=batch_size, epochs=epochs)
         # Logs
         if log_every and episode and episode % log_every == 0:

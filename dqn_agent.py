@@ -33,7 +33,7 @@ class DQNAgent:
 
     def __init__(self, state_size, mem_size=10000, discount=0.95,
                  epsilon=1, epsilon_min=0, epsilon_stop_episode=500,
-                 n_neurons=[32, 32, 32, 32,32], activations=['relu', 'relu', 'linear', 'relu', 'relu', 'linear'],
+                 n_neurons=[32, 32, 32, 32,32], activations=['relu', 'relu', 'relu', 'relu', 'relu', 'linear'],
                  # last one linear n_neurons=[32,32]
                  loss='mse', optimizer='adam', replay_start_size=None):
 
@@ -52,7 +52,7 @@ class DQNAgent:
         if not replay_start_size:
             replay_start_size = mem_size / 2
         self.replay_start_size = replay_start_size
-        self.model = self._build_model(fetch_old_model=True)
+        self.model = self._build_model(fetch_old_model=False)
 
     def _build_model(self, fetch_old_model):
         '''Builds a Keras deep neural network model'''
@@ -69,9 +69,9 @@ class DQNAgent:
 
             model.compile(loss=self.loss, optimizer=self.optimizer)
         else:
-            print("old model returned")
+            print("old model retrieved")
             # put the name of the model file you want
-            model = load_model('models/my_model-20200424-021658-h5')
+            model = load_model('models/my_model-20200424-094534-h5')
         return model
 
     # current_state, next_state,
@@ -104,13 +104,24 @@ class DQNAgent:
         '''Returns the best board for a given collection of boards'''
         max_value = None
         best_board = None
-
+        # lower score higher priority
+        # prior_holes = 1
+        # prior_bumpiness = 3
+        # prior_height = 2
+        # devider = [prior_holes, prior_bumpiness, prior_height]
         if random.random() <= self.epsilon:
             return random.choice(list(boards))
         else:
             for board in boards:
                 value = self.predict_value(np.reshape(board, [1, 200]))
+                # value_int = sum(np.divide(value, devider))
+                # print("value")
+                # print(value)
+                # print("value_int")
+                # print(value_int)
+                # if not max_value or value_int > max_value:
                 if not max_value or value > max_value:
+                    # max_value = value_int
                     max_value = value
                     best_board = board
         return best_board
