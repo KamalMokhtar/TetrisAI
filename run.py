@@ -16,7 +16,7 @@ def dqn():
     epsilon_stop_episode = 99500
     mem_size = 30000
     discount = 0.95
-    batch_size = 2
+    batch_size = 512
     epochs = 1
     render_every = 10000
     log_every = 50
@@ -56,11 +56,10 @@ def dqn():
                 if state == best_state:
                     best_action = action
                     break
-
-            score, done, reward = env.play(best_action[0], best_action[1], log_dir, render=render,
+            score, done, reward, lines_cleared = env.play(best_action[0], best_action[1], log_dir, render=False,
                                     render_delay=render_delay)
-            
-            agent.add_to_memory(current_state, next_states[best_action], reward, done)
+            for i in range(lines_cleared + 1):
+                agent.add_to_memory(current_state, next_states[best_action], reward, done)
             current_state = next_states[best_action]
             steps += 1
 
@@ -80,7 +79,6 @@ def dqn():
                     max_score=max_score)
 
         agent.model.save(log_dir + "/model.h5")
-
 
 if __name__ == "__main__":
     dqn()

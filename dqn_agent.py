@@ -1,5 +1,6 @@
 from keras.models import Sequential, save_model, load_model
-from keras.layers import Dense, Flatten, Conv2D
+from keras.layers import Dense, Flatten, Conv2D, Input, concatenate
+from keras.models import Model
 from collections import deque
 import numpy as np
 import random
@@ -56,20 +57,28 @@ class DQNAgent:
 
     def _build_model(self):
         '''Builds a Keras deep neural network model'''
-        model = Sequential()
+        model1in = Input(shape=(20,10,1))
+        model1out = Conv2D(32, kernel_size=(20,1), strides=(1,1), padding='same',
+                           activation=self.activations[0],
+                           name='layer1')(model1in)
+        model1out2 = Conv2D(kernel_size=(1, 10), strides=(1,1), activation='relu',
+                            filters=32, padding='same')(model1out)
 
-        model.add(Conv2D(32, kernel_size=(20,1), strides=(1,1), padding='same',
-                         input_shape=self.state_size, activation=self.activations[0]))
-        model.add(Conv2D(kernel_size=(1, 10), strides=(1,1), activation='relu', filters=32, padding='same'))
-        model.add(Conv2D(kernel_size=(4, 4), strides=(1,1), activation='relu', filters=16, padding='same'))
-        for i in range(1, len(self.n_neurons)):
-            model.add(Dense(self.n_neurons[i], activation=self.activations[i]))
-        model.add(Flatten())
-        model.add(Dense(1, activation=self.activations[-1]))
-
-        model.compile(loss=self.loss, optimizer=self.optimizer)
+        model2in = Input(shape=(20,10,1))
+        model2out = Conv2D(64, kernel_size=(8, 8), strides=(1,1), activation='relu',
+                           padding='same')(model2in)
+        model2out2 = Conv2D(kernel_size=(4, 4), strides=(1,1), activation='relu',
+                            filters=16, padding='same')(model2out)
+        concmodel = concatenate([model2out2, model1out2])
+        fully1 = Dense(256, activation='relu')(concmodel)
+        fully2 = Dense(128, activation='relu')(fully1)
+        fully3 = Dense(32, activation='relu')(fully2)
+        flat = Flatten()(fully3)
+        out = Dense(1, activation='linear')(flat)
+        merged_model = Model([model1in, model2in], out)
+        merged_model.compile(loss=self.loss, optimizer=self.optimizer)
         
-        return model
+        return merged_model
 
 
     def add_to_memory(self, current_state, next_state, reward, done):
@@ -84,7 +93,7 @@ class DQNAgent:
 
     def predict_value(self, state):
         '''Predicts the score for a certain state'''
-        return self.model.predict(state)[0]
+        return self.model.predict([state, state])[0]
 
 
     def act(self, state):
@@ -106,7 +115,9 @@ class DQNAgent:
 
         else:
             for state in states:
-                value = self.predict_value(np.reshape(state, (1,) + (self.state_size)  ))
+                predictinput = np.reshape(state, (20, 10, 1) )
+
+                value = self.predict_value([predictinput, predictinput])
                 if not max_value or value > max_value:
                     max_value = value
                     best_state = state
@@ -125,7 +136,8 @@ class DQNAgent:
             # Get the expected score for the next states, in batch (better performance)
             next_states = np.array([x[1] for x in batch])
             next_states =np.reshape(next_states, (batch_size, 20, 10, 1))
-            next_qs = [x[0] for x in self.model.predict(next_states)]
+
+            next_qs = [x[0] for x in self.model.predict([next_states, next_states])]
 
             x = []
             y = []
@@ -144,7 +156,7 @@ class DQNAgent:
 
             # Fit the model to the given values
             x = np.reshape(x, (batch_size, 20, 10, 1))
-            self.model.fit(x, np.array(y), epochs=epochs, verbose=0)
+            self.model.fit([x, x], np.array(y), epochs=epochs, verbose=0)
 
             # Update the exploration variable
             if self.epsilon > self.epsilon_min:

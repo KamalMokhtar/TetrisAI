@@ -270,7 +270,7 @@ class Tetris:
 
     def get_state_size(self):
         '''Size of the state'''
-        return (20, 10, 1)
+        return (20, 10,)
 
 
     def play(self, x, rotation, log_dir, render=False, render_delay=None):
@@ -304,7 +304,7 @@ class Tetris:
             score -= 1
             reward -= 1
 
-        return score, self.game_over, reward
+        return score, self.game_over, reward, lines_cleared
 
 
     def render(self):
