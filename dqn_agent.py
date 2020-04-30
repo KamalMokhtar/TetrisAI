@@ -31,7 +31,7 @@ class DQNAgent:
         replay_start_size: Minimum size needed to train
     '''
 
-    def __init__(self, state_size, mem_size=10000, discount=0.95,
+    def __init__(self, board_size, mem_size=10000, discount=0.95,
                  epsilon=1, epsilon_min=0, epsilon_stop_episode=500,
                  n_neurons=[32, 32, 32, 32,32], activations=['relu', 'relu', 'relu', 'relu', 'relu', 'linear'],
                  # last one linear n_neurons=[32,32]
@@ -39,7 +39,7 @@ class DQNAgent:
 
         assert len(activations) == len(n_neurons) + 1
 
-        self.state_size = state_size
+        self.board_size = board_size
         self.memory = deque(maxlen=mem_size)
         self.discount = discount
         self.epsilon = epsilon
@@ -52,7 +52,7 @@ class DQNAgent:
         if not replay_start_size:
             replay_start_size = mem_size / 2
         self.replay_start_size = replay_start_size
-        self.model = self._build_model(fetch_old_model=False)
+        self.model = self._build_model(fetch_old_model=True)
 
     def _build_model(self, fetch_old_model):
         '''Builds a Keras deep neural network model'''
@@ -71,14 +71,13 @@ class DQNAgent:
         else:
             print("old model retrieved")
             # put the name of the model file you want
-            model = load_model('models/my_model-20200424-094534-h5')
+            model = load_model('models/original')
         return model
 
     # current_state, next_state,
     def add_to_memory(self, current_board, next_board, reward, done):
         '''Adds a play to the replay memory buffer'''
         # current_state, next_state,
-        self.memory.append((current_board, next_board, reward, done))
 
     def random_value(self):
         '''Random score for a certain action'''
@@ -100,23 +99,48 @@ class DQNAgent:
     #         return self.predict_value(state)
 
     # def best_state(self, states):
-    def best_board(self, boards):  # states is the value of possible moves
+    def best_board(self, boards, model_play, input_size, board_state):  # states is the value of possible moves
         '''Returns the best board for a given collection of boards'''
         max_value = None
         best_board = None
 
-        if random.random() <= self.epsilon:
-            return random.choice(list(boards))
+        if not model_play:
+            if random.random() <= self.epsilon:
+                return random.choice(list(boards))
+            else:
+                for board in boards:
+                    if board_state:
+                        value = self.predict_value(np.reshape(board, input_size))#[1, 200] [1, 4]
+                    else:
+                        value_int = sum(value)
+
+                    # if not max_value or value_int > max_value:
+                    if board_state:
+                        if not max_value or value > max_value:
+                            # max_value = value_int
+                            max_value = value
+                            best_board = board
+                    else:
+                        if not max_value or value_int > max_value:
+                            max_value = value_int
+                            best_board = board
         else:
             for board in boards:
-                value = self.predict_value(np.reshape(board, [1, 200]))
-                # value_int = sum(value)
+                if board_state:
+                    value = self.predict_value(np.reshape(board, input_size))  # [1, 200] [1, 4]
+                else:
+                    value_int = sum(value)
 
                 # if not max_value or value_int > max_value:
-                if not max_value or value > max_value:
-                    # max_value = value_int
-                    max_value = value
-                    best_board = board
+                if board_state:
+                    if not max_value or value > max_value:
+                        # max_value = value_int
+                        max_value = value
+                        best_board = board
+                else:
+                    if not max_value or value_int > max_value:
+                        max_value = value_int
+                        best_board = board
         return best_board
 
     # *k train

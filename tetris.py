@@ -90,7 +90,7 @@ class Tetris:
         self.difference_index = None
         self.current_reward = [0] * 20
         self.previous_reward = [0] * 20
-        self.linestracker = [0, 0, 0, 0, 0]
+        self.linestracker = [0] * 5
         return self.board
         # return self._x_board_props(self.board)
 
@@ -230,7 +230,7 @@ class Tetris:
         sum_height, max_height, min_height = self._height(board)
         return [lines, holes, total_bumpiness, sum_height]
 
-    def get_next_boards(self):
+    def get_next_boards(self, board_state):
         '''Get all possible next states'''
         # states = {}
         board_states = {}
@@ -261,8 +261,11 @@ class Tetris:
                 # Valid move
                 if pos[1] >= 0:
                     board = self._add_piece_to_board(piece, pos)
-                    board_states[(x, rotation)] = board
-                    # states[(x, rotation)] = self._get_board_props(board) # returns (just increment value,angle):
+                    if board_state:
+                        board_states[(x, rotation)] = self._get_board_props(board) # returns (just increment value,angle):
+                    else:
+                        board_states[(x, rotation)] = board
+
                     # [status] only for one piece with all
                     # possible angles and positions in board
         return board_states
@@ -271,9 +274,9 @@ class Tetris:
         "'returns the bard status'"
         return
 
-    def get_state_size(self):
-        '''Size of the state'''
-        return 4
+    def get_board_size(self):
+        '''Size of the board'''
+        return 200
 
     def play(self, x, rotation, render=False, render_delay=None, time_frame=0):
 
@@ -340,7 +343,7 @@ class Tetris:
 
         if not self.previous_board:
             self.previous_board = [[0] * 10] * 20
-            self.scoreboard = [0] * 20  # think when to clear it
+            self.scoreboard = [0] * 20
             self.difference_index = [0] * 20
 
         for row in range(0, len(self.previous_board)):

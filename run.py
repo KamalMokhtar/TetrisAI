@@ -18,7 +18,7 @@ def dqn():
     discount = 0.95
     batch_size = 2500  # 512
     epochs = 1
-    render_every = 500  # 50
+    render_every = 1  # 50
     log_every = 50  # 50
     replay_start_size = 150000  # 2000
     train_every = 1
@@ -29,9 +29,16 @@ def dqn():
     # if model train, put both True
     model_save = True
     # if not training put the right model name you want to retrieve in _build_model function
-    agent_train = True
+    agent_train = False
+    agent_play = True
+    # if you want model original to play set board_state True
+    board_state = True
+    if board_state:
+        input_size = [1, 4]
+    else:
+        input_size = [1, 200]
 
-    agent = DQNAgent(env.get_state_size(),
+    agent = DQNAgent(env.get_board_size(),
                      n_neurons=n_neurons, activations=activations,
                      epsilon_stop_episode=epsilon_stop_episode, mem_size=mem_size,
                      discount=discount, replay_start_size=replay_start_size)
@@ -56,9 +63,9 @@ def dqn():
             render = False
 
         # *k Game
-        while not done and (not max_steps or steps < max_steps):
-            next_boards = env.get_next_boards()  # returns the all possible moves in next_state
-            best_board = agent.best_board(next_boards.values())
+        while not done and (not max_steps or steps < max_steps, agent_train, input_size):
+            next_boards = env.get_next_boards(board_state)  # returns the all possible moves in next_state
+            best_board = agent.best_board(next_boards.values(),agent_play ,input_size, board_state)
 
             best_action = None
 
@@ -71,9 +78,11 @@ def dqn():
             reward, done = env.play(best_action[0], best_action[1], render=render,
                                     render_delay=render_delay, time_frame=time_frame)
 
-            # agent.add_to_memory(current_state, next_states[best_action], reward, done)
-            agent.add_to_memory(list(itertools.chain.from_iterable(current_board)),
-                                list(itertools.chain.from_iterable(next_boards[best_action])), reward, done)
+            if board_state:
+                agent.add_to_memory(current_board, next_boards[best_action], reward, done)
+            else:
+                agent.add_to_memory(list(itertools.chain.from_iterable(current_board)),
+                                    list(itertools.chain.from_iterable(next_boards[best_action])), reward, done)
 
             current_board = next_boards[best_action]
             steps += 1
@@ -81,7 +90,7 @@ def dqn():
         scores.append(env.get_game_score())
 
         # Train
-        if episode % train_every == 0:# and agent_train:
+        if episode % train_every == 0 and agent_train:
             agent.train(batch_size=batch_size, epochs=epochs)
         # Logs
         if log_every and episode and episode % log_every == 0:

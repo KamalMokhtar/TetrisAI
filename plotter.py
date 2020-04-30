@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-filetoread = '/home/jordi/PycharmProjects/TetrisAI/logs/Convnet/linesfile.txt'
+# here you have to choose which file you would like to plot
+filetoread = 'lines_logging/linesfile-20200430-160539.txt'
 totallinescleared = []
 data = np.loadtxt(filetoread, dtype=int, delimiter=' ')
 x = np.linspace(1, len(data), num=len(data))
