@@ -65,7 +65,7 @@ class DQNAgent:
                 # self.n_neurons[i] 1600
                 model.add(Dense(self.n_neurons[i], activation=self.activations[i]))  # the second hidden layer
 
-            model.add(Dense(1, activation=self.activations[-1], name='output'))  # output layer
+            model.add(Dense(20, activation=self.activations[-1], name='output'))  # output layer
 
             model.compile(loss=self.loss, optimizer=self.optimizer)
         else:
@@ -110,12 +110,12 @@ class DQNAgent:
         else:
             for board in boards:
                 value = self.predict_value(np.reshape(board, [1, 200]))
-                # value_int = sum(value)
+                value_int = sum(value)
 
-                # if not max_value or value_int > max_value:
-                if not max_value or value > max_value:
-                    # max_value = value_int
-                    max_value = value
+                if not max_value or value_int > max_value:
+                #if not max_value or value > max_value:
+                    max_value = value_int
+                    #max_value = value
                     best_board = board
         return best_board
 

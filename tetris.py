@@ -306,9 +306,9 @@ class Tetris:
 
         self.previous_reward = self.current_reward.copy()
         model_reward = [score * x for x in model_reward]
-        sum_model_reward = sum(model_reward)
+        # sum_model_reward = sum(model_reward)
 
-        return sum_model_reward, self.game_over #model_reward
+        return model_reward, self.game_over #model_reward
 
     def render(self):
         '''Renders the current board'''
