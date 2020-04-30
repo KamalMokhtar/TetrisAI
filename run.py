@@ -11,18 +11,18 @@ import itertools
 # Run dqn with Tetris
 def dqn():
     env = Tetris()
-    episodes = 200000  # 2000
+    episodes = 150000  # 2000
     max_steps = None
-    epsilon_stop_episode = 190000# 1500
-    mem_size = 2000000  # 20000
+    epsilon_stop_episode = 140000# 1500
+    mem_size = 1500000  # 20000
     discount = 0.95
-    batch_size = 3000  # 512
+    batch_size = 2500  # 512
     epochs = 1
-    render_every = 200  # 50
+    render_every = 500  # 50
     log_every = 50  # 50
-    replay_start_size = 7000  # 2000
+    replay_start_size = 150000  # 2000
     train_every = 1
-    n_neurons = [160, 160, 160, 160, 160]
+    n_neurons = [360, 360, 360, 360, 360]
     render_delay = None
     activations = ['relu', 'relu', 'relu', 'relu', 'relu', 'linear']
     # if model play put agent_train False

@@ -104,21 +104,14 @@ class DQNAgent:
         '''Returns the best board for a given collection of boards'''
         max_value = None
         best_board = None
-        # lower score higher priority
-        # prior_holes = 1
-        # prior_bumpiness = 3
-        # prior_height = 2
-        # devider = [prior_holes, prior_bumpiness, prior_height]
+
         if random.random() <= self.epsilon:
             return random.choice(list(boards))
         else:
             for board in boards:
                 value = self.predict_value(np.reshape(board, [1, 200]))
-                # value_int = sum(np.divide(value, devider))
-                # print("value")
-                # print(value)
-                # print("value_int")
-                # print(value_int)
+                # value_int = sum(value)
+
                 # if not max_value or value_int > max_value:
                 if not max_value or value > max_value:
                     # max_value = value_int
