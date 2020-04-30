@@ -90,6 +90,7 @@ class Tetris:
         self.difference_index = None
         self.current_reward = [0] * 20
         self.previous_reward = [0] * 20
+        self.linestracker = [0, 0, 0, 0, 0]
         return self.board
         # return self._x_board_props(self.board)
 
@@ -274,7 +275,7 @@ class Tetris:
         '''Size of the state'''
         return 4
 
-    def play(self, x, rotation, render=False, render_delay=None):
+    def play(self, x, rotation, render=False, render_delay=None, time_frame=0):
 
         '''Makes a play given a position and a rotation, returning the reward and if the game is over'''
         self.current_pos = [x, 0]
@@ -292,12 +293,20 @@ class Tetris:
         self.board = self._add_piece_to_board(self._get_rotated_piece(), self.current_pos)
         lines_cleared, self.board = self._clear_lines(self.board)
         score = 1 + (lines_cleared ** 2) * Tetris.BOARD_WIDTH
+        self.linestracker[lines_cleared] = self.linestracker[lines_cleared] + 1
         self.score += score
+        reward_log = score
 
         # Start new round
         self._new_round()
         if self.game_over:
+            array = np.array(self.linestracker).reshape([1, 5])
+            # self.model.save(f'lines_logging/my_model-{time_frame}')  # creates a HDF5 file
+            with open('lines_logging/' + f'linesfile-{time_frame}.txt', 'a') as linesfile:
+                np.savetxt(linesfile, array, fmt="%d", delimiter=' ')
             score -= 2
+            reward_log -= 1
+
 
 
         # previous = self.pre_model_reward
@@ -306,9 +315,9 @@ class Tetris:
 
         self.previous_reward = self.current_reward.copy()
         model_reward = [score * x for x in model_reward]
-        # sum_model_reward = sum(model_reward)
+        sum_model_reward = sum(model_reward)
 
-        return model_reward, self.game_over #model_reward
+        return sum_model_reward, self.game_over #model_reward
 
     def render(self):
         '''Renders the current board'''
@@ -344,7 +353,4 @@ class Tetris:
 
         self.previous_board = current_board
 
-        # print("next")
-        # print(self.difference_index)
-        # print(self.scoreboard)
         return self.scoreboard

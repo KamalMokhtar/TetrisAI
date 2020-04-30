@@ -37,6 +37,8 @@ def dqn():
                      discount=discount, replay_start_size=replay_start_size)
 
     time_frame = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    open('lines_logging/' + f'linesfile-{time_frame}.txt', 'w') # creating file for the line logging
     log_dir = f'logs/tetris-nn={str(n_neurons)}-mem={mem_size}-bs={batch_size}-e={epochs}-{time_frame}'
     log = CustomTensorBoard(log_dir=log_dir)
 
@@ -67,7 +69,7 @@ def dqn():
             # Reward each block placed yields 1 point. When clearing lines, the given score is
             # number_lines_cleared^2 × board_width. Losing a game subtracts 1 point.
             reward, done = env.play(best_action[0], best_action[1], render=render,
-                                    render_delay=render_delay)
+                                    render_delay=render_delay, time_frame=time_frame)
 
             # agent.add_to_memory(current_state, next_states[best_action], reward, done)
             agent.add_to_memory(list(itertools.chain.from_iterable(current_board)),
