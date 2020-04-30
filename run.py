@@ -11,28 +11,30 @@ import itertools
 # Run dqn with Tetris
 def dqn():
     env = Tetris()
-    episodes = 150000  # 2000
+    episodes = 200000  # 2000
     max_steps = None
-    epsilon_stop_episode = 140000# 1500
-    mem_size = 1500000  # 20000
+    epsilon_stop_episode = 190000  # 1500
+    mem_size = 2000000  # 20000
     discount = 0.95
-    batch_size = 2500  # 512
+    batch_size = 512  # 512
     epochs = 1
-    render_every = 1  # 50
+    render_every = 200  # 50
     log_every = 50  # 50
-    replay_start_size = 150000  # 2000
+    replay_start_size = 7000  # 2000
     train_every = 1
-    n_neurons = [360, 360, 360, 360, 360]
+    n_neurons = [160, 160, 160, 160, 160]
     render_delay = None
     activations = ['relu', 'relu', 'relu', 'relu', 'relu', 'linear']
-    # if model play put agent_train False
-    # if model train, put both True
-    model_save = True
-    # if not training put the right model name you want to retrieve in _build_model function
-    agent_train = False
-    agent_play = True
+    # in play: put model name that you want it to play in dqn_agent.py line around line 74
+    # in play: set render_every = 1  in line 21
+    # in play: set agent_play below to True
+    # in play: the model will not be trained nor will be saved
+    # in play: the model lines clearing scoring will be saved if you let the model finish the episodes set above
     # if you want model original to play set board_state True
-    board_state = True
+    # if you want the model to play with the board as input set board_state to False
+    # all model names, line_logging and the logs will be save with the same time stamp
+    agent_play = False
+    board_state = False
     if board_state:
         input_size = [1, 4]
     else:
@@ -63,9 +65,9 @@ def dqn():
             render = False
 
         # *k Game
-        while not done and (not max_steps or steps < max_steps, agent_train, input_size):
+        while not done and (not max_steps or steps < max_steps): #agent_train, input_size
             next_boards = env.get_next_boards(board_state)  # returns the all possible moves in next_state
-            best_board = agent.best_board(next_boards.values(),agent_play ,input_size, board_state)
+            best_board = agent.best_board(next_boards.values(), agent_play, input_size, board_state)
 
             best_action = None
 
@@ -90,7 +92,7 @@ def dqn():
         scores.append(env.get_game_score())
 
         # Train
-        if episode % train_every == 0 and agent_train:
+        if episode % train_every == 0 and not agent_play:
             agent.train(batch_size=batch_size, epochs=epochs)
         # Logs
         if log_every and episode and episode % log_every == 0:
@@ -101,7 +103,7 @@ def dqn():
             log.log(episode, avg_score=avg_score, min_score=min_score,
                     max_score=max_score)
     # save the model
-    if model_save and agent_train:
+    if not agent_play:
         agent.model_save(time_frame)
 
 

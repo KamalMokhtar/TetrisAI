@@ -71,7 +71,8 @@ class DQNAgent:
         else:
             print("old model retrieved")
             # put the name of the model file you want
-            model = load_model('models/original')
+            # if you want to have the original ('models/original')
+            model = load_model('models/my_model-20200426-215241-h5')
         return model
 
     # current_state, next_state,
@@ -111,16 +112,13 @@ class DQNAgent:
                 for board in boards:
                     if board_state:
                         value = self.predict_value(np.reshape(board, input_size))#[1, 200] [1, 4]
-                    else:
-                        value_int = sum(value)
-
-                    # if not max_value or value_int > max_value:
-                    if board_state:
                         if not max_value or value > max_value:
                             # max_value = value_int
                             max_value = value
                             best_board = board
                     else:
+                        value = self.predict_value(np.reshape(board, input_size))
+                        value_int = sum(value)
                         if not max_value or value_int > max_value:
                             max_value = value_int
                             best_board = board
@@ -128,16 +126,13 @@ class DQNAgent:
             for board in boards:
                 if board_state:
                     value = self.predict_value(np.reshape(board, input_size))  # [1, 200] [1, 4]
-                else:
-                    value_int = sum(value)
-
-                # if not max_value or value_int > max_value:
-                if board_state:
                     if not max_value or value > max_value:
                         # max_value = value_int
                         max_value = value
                         best_board = board
                 else:
+                    value = self.predict_value(np.reshape(board, input_size))
+                    value_int = sum(value)
                     if not max_value or value_int > max_value:
                         max_value = value_int
                         best_board = board
