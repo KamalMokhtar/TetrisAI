@@ -25,14 +25,28 @@ def dqn():
     n_neurons = [160, 160, 160, 160, 160]
     render_delay = None
     activations = ['relu', 'relu', 'relu', 'relu', 'relu', 'linear']
-    # in play: put model name that you want it to play in dqn_agent.py line around line 74
-    # in play: set render_every = 1  in line 21
-    # in play: set agent_play below to True
-    # in play: the model will not be trained nor will be saved
-    # in play: the model lines clearing scoring will be saved if you let the model finish the episodes set above
-    # if you want model original to play set board_state True
-    # if you want the model to play with the board as input set board_state to False
+    # -------------------In play mode------------------- #
+    # put model name that you want it to play in model_name below
+    # set render_every = 1  in line 21
+    # set agent_play below to True
+    # set fetch_old_model below to True
+    # the model will not be trained nor will be saved
+    # the model lines clearing scoring will be saved if you let the model finish the episodes set above
+    # ------------------- play mode Nuno Faria ------------------- #
+    # same steps as in play mode, then
+    # set board_state True
+    # model_name = 'models/original'
+    # ------------------- if training from scratch ------------------- #
+    # set fetch_old_model = False, agent_play = false, board_state = False
+    # ------------------- continue training ------------------- #
+    # can continue the model but keep in mind that it will start exploring in the beginning again
+    # set the model name that you want to continue training from
+    # set fetch_old_model = True, agent_play = false, board_state = false
+
     # all model names, line_logging and the logs will be save with the same time stamp
+
+    model_name = 'models/my_model-20200426-215241-h5'
+    fetch_old_model = False
     agent_play = False
     board_state = False
     if board_state:
@@ -43,7 +57,7 @@ def dqn():
     agent = DQNAgent(env.get_board_size(),
                      n_neurons=n_neurons, activations=activations,
                      epsilon_stop_episode=epsilon_stop_episode, mem_size=mem_size,
-                     discount=discount, replay_start_size=replay_start_size)
+                     discount=discount, replay_start_size=replay_start_size, fetch_old_model=fetch_old_model, model_name=model_name)
 
     time_frame = datetime.now().strftime("%Y%m%d-%H%M%S")
 

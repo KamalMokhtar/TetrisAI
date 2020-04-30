@@ -35,7 +35,7 @@ class DQNAgent:
                  epsilon=1, epsilon_min=0, epsilon_stop_episode=500,
                  n_neurons=[32, 32, 32, 32,32], activations=['relu', 'relu', 'relu', 'relu', 'relu', 'linear'],
                  # last one linear n_neurons=[32,32]
-                 loss='mse', optimizer='adam', replay_start_size=None):
+                 loss='mse', optimizer='adam', replay_start_size=None, fetch_old_model=False, model_name= None):
 
         assert len(activations) == len(n_neurons) + 1
 
@@ -52,9 +52,9 @@ class DQNAgent:
         if not replay_start_size:
             replay_start_size = mem_size / 2
         self.replay_start_size = replay_start_size
-        self.model = self._build_model(fetch_old_model=True)
+        self.model = self._build_model(fetch_old_model, model_name)
 
-    def _build_model(self, fetch_old_model):
+    def _build_model(self, fetch_old_model, model_name):
         '''Builds a Keras deep neural network model'''
         if not fetch_old_model:
             print("new model made")
@@ -72,7 +72,7 @@ class DQNAgent:
             print("old model retrieved")
             # put the name of the model file you want
             # if you want to have the original ('models/original')
-            model = load_model('models/my_model-20200426-215241-h5')
+            model = load_model(model_name)
         return model
 
     # current_state, next_state,
