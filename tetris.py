@@ -320,7 +320,7 @@ class Tetris:
         model_reward = [score * x for x in model_reward]
         sum_model_reward = sum(model_reward)
 
-        return sum_model_reward, self.game_over #model_reward
+        return sum_model_reward, self.game_over #sum_model_reward
 
     def render(self):
         '''Renders the current board'''

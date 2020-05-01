@@ -79,6 +79,7 @@ class DQNAgent:
     def add_to_memory(self, current_board, next_board, reward, done):
         '''Adds a play to the replay memory buffer'''
         # current_state, next_state,
+        self.memory.append((current_board, next_board, reward, done))
 
     def random_value(self):
         '''Random score for a certain action'''
@@ -105,6 +106,7 @@ class DQNAgent:
         max_value = None
         best_board = None
 
+        # training
         if not model_play:
             if random.random() <= self.epsilon:
                 return random.choice(list(boards))
@@ -122,6 +124,7 @@ class DQNAgent:
                         if not max_value or value_int > max_value:
                             max_value = value_int
                             best_board = board
+        # playing
         else:
             for board in boards:
                 if board_state:
@@ -162,7 +165,6 @@ class DQNAgent:
 
                 x.append(board)
                 y.append(new_q)
-
             self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
 
             # Update the exploration variable

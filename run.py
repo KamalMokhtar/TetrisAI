@@ -13,7 +13,7 @@ def dqn():
     env = Tetris()
     episodes = 200000  # 2000
     max_steps = None
-    epsilon_stop_episode = 190000  # 1500
+    epsilon_stop_episode = 1#190000  # 1500
     mem_size = 2000000  # 20000
     discount = 0.95
     batch_size = 512  # 512
@@ -42,11 +42,12 @@ def dqn():
     # can continue the model but keep in mind that it will start exploring in the beginning again
     # set the model name that you want to continue training from
     # set fetch_old_model = True, agent_play = false, board_state = false
+    # after the training is done, give the model and the files appropriate name
 
     # all model names, line_logging and the logs will be save with the same time stamp
 
     model_name = 'models/my_model-20200426-215241-h5'
-    fetch_old_model = False
+    fetch_old_model = True
     agent_play = False
     board_state = False
     if board_state:
