@@ -91,8 +91,9 @@ class Tetris:
         self.current_reward = [0] * 20
         self.previous_reward = [0] * 20
         self.linestracker = [0] * 5
-        return self.board
-        # return self._x_board_props(self.board)
+        self._get_board_props(self.board)
+        #return self.board
+        #return self._x_board_props(self.board)
 
     def _get_rotated_piece(self):
         '''Returns the current piece, including rotation'''
@@ -310,8 +311,6 @@ class Tetris:
             score -= 2
             reward_log -= 1
 
-
-
         # previous = self.pre_model_reward
         self.current_reward = self._get_grid_reward(self.board)
         model_reward = np.array(np.array(self.current_reward) - np.array(self.previous_reward))
@@ -320,7 +319,7 @@ class Tetris:
         model_reward = [score * x for x in model_reward]
         sum_model_reward = sum(model_reward)
 
-        return sum_model_reward, self.game_over #sum_model_reward
+        return score, self.game_over #sum_model_reward
 
     def render(self):
         '''Renders the current board'''

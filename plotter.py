@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # here you have to choose which file you would like to plot
-filetoread = 'lines_logging/linesfile-20200501-003031.txt'
+filetoread = 'lines_logging/linesfile-20200504-233443.txt'
 totallinescleared = []
 data = np.loadtxt(filetoread, dtype=int, delimiter=' ')
 x = np.linspace(1, len(data), num=len(data))

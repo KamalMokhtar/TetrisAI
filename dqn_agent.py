@@ -35,7 +35,7 @@ class DQNAgent:
                  epsilon=1, epsilon_min=0, epsilon_stop_episode=500,
                  n_neurons=[32, 32, 32, 32,32], activations=['relu', 'relu', 'relu', 'relu', 'relu', 'linear'],
                  # last one linear n_neurons=[32,32]
-                 loss='mse', optimizer='adam', replay_start_size=None, fetch_old_model=False, model_name= None):
+                 loss='mse', optimizer='adam', replay_start_size=None, fetch_old_model=False, model_name=None, input_width=None):
 
         assert len(activations) == len(n_neurons) + 1
 
@@ -52,14 +52,14 @@ class DQNAgent:
         if not replay_start_size:
             replay_start_size = mem_size / 2
         self.replay_start_size = replay_start_size
-        self.model = self._build_model(fetch_old_model, model_name)
+        self.model = self._build_model(fetch_old_model, model_name, input_width)
 
-    def _build_model(self, fetch_old_model, model_name):
+    def _build_model(self, fetch_old_model, model_name, input_width):
         '''Builds a Keras deep neural network model'''
         if not fetch_old_model:
             print("new model made")
             model = Sequential()  # 32  self.n_neurons[0]          #  4   self.state_size                     #relu
-            model.add(Dense(self.n_neurons[0], input_dim=200, activation=self.activations[0]))
+            model.add(Dense(self.n_neurons[0], input_dim=input_width, activation=self.activations[0]))
 
             for i in range(1, len(self.n_neurons)):  # 1 to 2
                 # self.n_neurons[i] 1600
@@ -162,7 +162,6 @@ class DQNAgent:
                     new_q = reward + self.discount * next_board_qs[i]
                 else:
                     new_q = reward
-
                 x.append(board)
                 y.append(new_q)
             self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
