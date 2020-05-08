@@ -23,7 +23,7 @@ the model will not be trained nor will be saved
 the amount of lines cleared will be saved per run
 ### ------------------- play mode Nuno Faria ------------------- 
 set model model_name = 'models/original'
-#### ------- training from scratch mode Nuno Faria ------------------- 
+#### ------- training from scratch mode Nuno Faria ------ 
 set model_number =  4 in run.py
 set agent_play = False in run.py
 set rendering = True in run.py
@@ -31,7 +31,7 @@ set render_every = 500 (up to you)  in run.py
 set fetch_old_model = False in run.py
 set the training parameters in run.py (parameters in def dqn():)
 set the return function to return score, self.game_over in tetris.py
-### --training full board from scratch (best state reward function)----- 
+### ----training full board from scratch (best state reward function)----- 
 set model_number =  1/2/3 in run.py
 set agent_play = False in run.py
 set rendering = True in run.py
@@ -50,7 +50,7 @@ set rendering = True in run.py
 set render_every = 500 (up to you)  in run.py
 set agent_play = False in run.py
 set fetch_old_model = True in run.py
---------------------------------------------
+
 
 ## Output files: There are three output files.
 -The tensorboard file (events.out*****). Model score and training time is saved.
