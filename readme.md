@@ -23,7 +23,7 @@ the model will not be trained nor will be saved
 the amount of lines cleared will be saved per run
 ### play mode Nuno Faria  
 set model model_name = 'models/original'
-#### training from scratch mode Nuno Faria  
+### training from scratch mode Nuno Faria  
 set model_number =  4 in run.py
 set agent_play = False in run.py
 set rendering = True in run.py
