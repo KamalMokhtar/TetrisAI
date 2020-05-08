@@ -10,22 +10,22 @@ import itertools
 
 # Run dqn with Tetris
 def dqn():
+
     env = Tetris()
-    episodes = 200000  # 2000
+    episodes = 2000  # 2000
     max_steps = None
-    epsilon_stop_episode = 190000  # 1500
-    mem_size = 2000000  # 20000
+    epsilon_stop_episode = 15000  # 1500
+    mem_size = 2000 # 20000
     discount = 0.95
     batch_size = 512  # 512
     epochs = 1
-    render_every = 1  # 50
+    render_every = 50  # 50
     log_every = 50  # 50
-    replay_start_size = 7000  # 2000
+    replay_start_size = 2000  # 2000
     train_every = 1
-    n_neurons = [160, 160, 160, 160, 160] # [32, 32]
+    n_neurons = [160, 160, 160, 160, 160]
     render_delay = None
-    activations = ['relu', 'relu', 'relu', 'relu', 'relu', 'linear'] # ['relu', 'relu', 'linear']
-
+    activations = ['relu', 'relu', 'relu', 'relu', 'relu', 'linear']
     # -------------------In play mode------------------- #
     # put model name that you want it to play in model_name below
     # set render_every = 1  in line 21
@@ -34,63 +34,63 @@ def dqn():
     # the model will not be trained nor will be saved
     # the model lines clearing scoring will be saved if you let the model finish the episodes set above
     # ------------------- play mode Nuno Faria ------------------- #
-    # https://github.com/nuno-faria/tetris-ai
     # same steps as in play mode, then
     # set board_state True
     # model_name = 'models/original'
-    # ------------------- training from scratch mode Nuno Faria ------------------- #
-    # set fetch_old_model = False, agent_play = false, board_state = True and or
-    # set the return parameter to score in th function play in tetris.py
-    # ------------------- if training from scratch full board------------------- #
+    # ------------------- if training from scratch ------------------- #
     # set fetch_old_model = False, agent_play = false, board_state = False
-    # you can choose sum_model_reward or score in th function play in tetris.py
-    # sum_model_reward is the matrix reward
-    # score the oridnary Tetris game reward
     # ------------------- continue training ------------------- #
-    # can continue the model but keep in mind that it will start exploring in the beginning again depending on epsilon_stop_episode
+    # can continue the model but keep in mind that it will start exploring in the beginning again
     # set the model name that you want to continue training from
     # set fetch_old_model = True, agent_play = false, board_state = false
-    # you can choose sum_model_reward or score in th function play in tetris.py
     # after the training is done, give the model and the files appropriate name
 
     # all model names, line_logging and the logs will be save with the same time stamp
-
+    # choosing which model to train
+    # 1 full board or board state input also for the nuno_faria
+    # 2 CNN
+    # 3 CNN merged
+    # 4 Nuno Faria
+    model_number = 3
     model_name = 'models/my_model-20200504-233443-h5'
     # Rendering false for Peregrine
-    rendering = False
+    board_state = False
+    rendering = True
     fetch_old_model = False
     agent_play = False
-    board_state = True
+
     if board_state:
         input_size = [1, 4]
-        input_width = 4
     else:
         input_size = [1, 200]
-        input_width= 200
 
     agent = DQNAgent(env.get_board_size(),
                      n_neurons=n_neurons, activations=activations,
                      epsilon_stop_episode=epsilon_stop_episode, mem_size=mem_size,
-                     discount=discount, replay_start_size=replay_start_size, fetch_old_model=fetch_old_model, model_name=model_name, input_width=input_width)
+                     discount=discount, replay_start_size=replay_start_size, fetch_old_model=fetch_old_model,
+                     model_name=model_name, model_number=model_number)
 
     time_frame = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-    open("lines_logging/" + f"linesfile-{time_frame}.txt", "w") # creating file for the line logging
-    log_dir = f"logs/tetris-nn={str(n_neurons)}-mem={mem_size}-bs={batch_size}-e={epochs}-{time_frame}"
+    open('lines_logging/' + f'linesfile-{time_frame}.txt', 'w') # creating file for the line logging
+    log_dir = f'logs/tetris-nn={str(n_neurons)}-mem={mem_size}-bs={batch_size}-e={epochs}-{time_frame}'
     log = CustomTensorBoard(log_dir=log_dir)
 
     scores = []
 
     for episode in tqdm(range(episodes)):
 
-        env.reset()
+        #current_board = env.reset()
+        # env.reset()
         if board_state:
             current_board = [0]*4
         else:
-            current_board = [0]*200
+            current_board = env.reset()
+            #print(current_board)
 
         done = False
         steps = 0
+
         if rendering:
             if render_every and episode % render_every == 0:
                 render = True
@@ -98,6 +98,7 @@ def dqn():
                 render = False
         else:
             render = False
+
         # *k Game
         while not done and (not max_steps or steps < max_steps): #agent_train, input_size
             next_boards = env.get_next_boards(board_state)  # returns the all possible moves in next_state
@@ -118,7 +119,8 @@ def dqn():
                 agent.add_to_memory(current_board, next_boards[best_action], reward, done)
             else:
                 agent.add_to_memory(list(itertools.chain.from_iterable(current_board)),
-                                    list(itertools.chain.from_iterable(next_boards[best_action])), reward, done)
+                                    list(itertools.chain.from_iterable(next_boards[best_action])),
+                                    reward, done)
 
             current_board = next_boards[best_action]
             steps += 1
@@ -127,7 +129,7 @@ def dqn():
 
         # Train
         if episode % train_every == 0 and not agent_play:
-            agent.train(batch_size=batch_size, epochs=epochs)
+            agent.train(batch_size=batch_size, epochs=epochs, model_number=model_number)
         # Logs
         if log_every and episode and episode % log_every == 0:
             avg_score = mean(scores[-log_every:])

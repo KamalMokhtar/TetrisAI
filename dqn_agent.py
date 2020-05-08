@@ -1,5 +1,6 @@
 from keras.models import Sequential, save_model, load_model
-from keras.layers import Dense
+from keras.layers import Dense, Flatten, Conv2D, Input, concatenate
+from keras.models import Model
 from collections import deque
 import numpy as np
 import random
@@ -16,7 +17,6 @@ from datetime import datetime
 # action for a particular state.
 class DQNAgent:
     '''Deep Q Learning Agent + Maximin
-
     Args:
         state_size (int): Size of the input domain
         mem_size (int): Size of the replay buffer
@@ -35,7 +35,8 @@ class DQNAgent:
                  epsilon=1, epsilon_min=0, epsilon_stop_episode=500,
                  n_neurons=[32, 32, 32, 32,32], activations=['relu', 'relu', 'relu', 'relu', 'relu', 'linear'],
                  # last one linear n_neurons=[32,32]
-                 loss='mse', optimizer='adam', replay_start_size=None, fetch_old_model=False, model_name=None, input_width=None):
+                 loss='mse', optimizer='adam', replay_start_size=None, fetch_old_model=False, model_name= None,
+                 model_number=1):
 
         assert len(activations) == len(n_neurons) + 1
 
@@ -52,22 +53,64 @@ class DQNAgent:
         if not replay_start_size:
             replay_start_size = mem_size / 2
         self.replay_start_size = replay_start_size
-        self.model = self._build_model(fetch_old_model, model_name, input_width)
+        self.model = self._build_model(fetch_old_model, model_name, model_number)
 
-    def _build_model(self, fetch_old_model, model_name, input_width):
+    def _build_model(self, fetch_old_model, model_name, model_number):
         '''Builds a Keras deep neural network model'''
         if not fetch_old_model:
-            print("new model made")
-            model = Sequential()  # 32  self.n_neurons[0]          #  4   self.state_size                     #relu
-            model.add(Dense(self.n_neurons[0], input_dim=input_width, activation=self.activations[0]))
+            if model_number == 1:
+                # print("new model made")
+                model = Sequential()  # 32  self.n_neurons[0]          #  4   self.state_size                     #relu
+                model.add(Dense(self.n_neurons[0], input_dim=200, activation=self.activations[0]))
 
-            for i in range(1, len(self.n_neurons)):  # 1 to 2
-                # self.n_neurons[i] 1600
-                model.add(Dense(self.n_neurons[i], activation=self.activations[i]))  # the second hidden layer
+                for i in range(1, len(self.n_neurons)):  # 1 to 2
+                    # self.n_neurons[i] 1600
+                    model.add(Dense(self.n_neurons[i], activation=self.activations[i]))  # the second hidden layer
 
-            model.add(Dense(1, activation=self.activations[-1], name='output'))  # output layer
+                model.add(Dense(1, activation=self.activations[-1], name='output'))  # output layer
+            if model_number == 2:
+                model = Sequential()
+
+                model.add(Conv2D(32, kernel_size=(20, 1), strides=(1, 1), padding='same',
+                                 input_shape=(20, 10, 1), activation=self.activations[0]))
+                model.add(Conv2D(kernel_size=(1, 10), strides=(1, 1), activation='relu', filters=32, padding='same'))
+                model.add(Conv2D(kernel_size=(4, 4), strides=(1, 1), activation='relu', filters=16, padding='same'))
+                for i in range(1, len(self.n_neurons)):
+                    model.add(Dense(self.n_neurons[i], activation=self.activations[i]))
+                model.add(Flatten())
+                model.add(Dense(1, activation=self.activations[-1]))
+            if model_number == 3:
+                model1in = Input(shape=(20, 10, 1))
+                model1out = Conv2D(32, kernel_size=(20, 1), strides=(1, 1), padding='same',
+                                   activation=self.activations[0],
+                                   name='layer1')(model1in)
+                model1out2 = Conv2D(kernel_size=(1, 10), strides=(1, 1), activation='relu',
+                                    filters=32, padding='same')(model1out)
+
+                model2in = Input(shape=(20, 10, 1))
+                model2out = Conv2D(64, kernel_size=(8, 8), strides=(1, 1), activation='relu',
+                                   padding='same')(model2in)
+                model2out2 = Conv2D(kernel_size=(4, 4), strides=(1, 1), activation='relu',
+                                    filters=16, padding='same')(model2out)
+                concmodel = concatenate([model2out2, model1out2])
+                fully1 = Dense(256, activation='relu')(concmodel)
+                fully2 = Dense(128, activation='relu')(fully1)
+                fully3 = Dense(32, activation='relu')(fully2)
+                flat = Flatten()(fully3)
+                out = Dense(1, activation='linear')(flat)
+                model = Model([model1in, model2in], out)
+            if model_number == 4:
+                model = Sequential()  # 32  self.n_neurons[0]          #  4   self.state_size                     #relu
+                model.add(Dense(self.n_neurons[0], input_dim=4, activation=self.activations[0]))
+
+                for i in range(1, len(self.n_neurons)):  # 1 to 2
+                    # self.n_neurons[i] 1600
+                    model.add(Dense(self.n_neurons[i], activation=self.activations[i]))  # the second hidden layer
+
+                model.add(Dense(1, activation=self.activations[-1], name='output'))  # output layer
 
             model.compile(loss=self.loss, optimizer=self.optimizer)
+
         else:
             print("old model retrieved")
             # put the name of the model file you want
@@ -142,15 +185,24 @@ class DQNAgent:
         return best_board
 
     # *k train
-    def train(self, batch_size=1, epochs=1, board=[0] * 200, played_blocks=0):  # batch_size=32 epochs=3
+    def train(self, batch_size=1, epochs=1, board=[0] * 200, played_blocks=0,model_number=1):  # batch_size=32 epochs=3
         '''Trains the agent'''
         n = len(self.memory)  # this increases with the playing number of blocks
         if n >= self.replay_start_size and n >= batch_size:  # replay_start_size original 2000 changed to 100
 
             batch = random.sample(self.memory, batch_size)
             next_boards = np.array([x[1] for x in batch])
-            next_board_qs = [x[0] for x in self.model.predict(next_boards)]
-
+            # 1 or 4 full board or board state input
+            # 2 CNN
+            # 3 CNN merged
+            if model_number == 1 or model_number == 4:
+                next_board_qs = [x[0] for x in self.model.predict(next_boards)]
+            if model_number == 2:
+                next_boards = np.reshape(next_boards, (batch_size, 20, 10, 1))
+                next_board_qs = [x[0] for x in self.model.predict(next_boards)]
+            if model_number == 3:
+                next_boards = np.reshape(next_boards, (batch_size, 20, 10, 1))
+                next_board_qs = [x[0] for x in self.model.predict([next_boards, next_boards])]
             x = []
             y = []
 
@@ -162,8 +214,16 @@ class DQNAgent:
                     new_q = reward + self.discount * next_board_qs[i]
                 else:
                     new_q = reward
+
                 x.append(board)
                 y.append(new_q)
+
+            if model_number == 2:
+                x = np.reshape(x, (batch_size, 20, 10, 1))
+            if model_number == 3:
+                x = np.reshape(x, (batch_size, 20, 10, 1))
+                x = [x, x]
+
             self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
 
             # Update the exploration variable
