@@ -52,9 +52,9 @@ set agent_play = False in run.py\
 set fetch_old_model = True in run.py
 ## Output files
 There are 3 output files\
--The tensorboard file (events.out&ast;). Model score and training time is saved.\
-From the terminal type 'tensorboard --logdir="path/to/folder/"'.\
--The files that log amount of lines cleared (linesfile-&ast;.txt). By setting the filename in plotter.py and running it, a plot of the amount of lines cleared will be showed.\
+- The tensorboard file (events.out&ast;). Model score and training time is saved.
+From the terminal type 'tensorboard --logdir="path/to/folder/"'.
+- The files that log amount of lines cleared (linesfile-&ast;.txt). By setting the filename in plotter.py and running it, a plot of the amount of lines cleared will be showed.
 - The models In the directory models, after the training is finished the model will be saved. These load to play or train further.
 ### KNOWN ISSUES:
 The environment: the model sometimes has a gameover in a wrong state, this usually happens when it goes game over when there is an entire empty row as top row, but the row below that has atleast 1 block in it. The game then places a block in a possible place, but goes gameover before it places this block.
