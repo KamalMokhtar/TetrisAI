@@ -64,10 +64,10 @@ The environment: the model sometimes has a gameover in a wrong state, this usual
 ### Peregrine RUG HPC:
 there is a ready script run.sh which creats the virtual environment and start the training the mode for 2M epochs
 Requirements:
-    Tensorflow (tensorflow-gpu==1.14.0, CPU version can be used too)
-    Tensorboard (tensorboard==1.14.0)
-    Keras (Keras==2.2.4)
-    Opencv-python (opencv-python==4.1.0.25)
-    Numpy (numpy==1.16.4)
-    Pillow (Pillow==5.4.1)
-    Tqdm (tqdm==4.31.1)
+Tensorflow (tensorflow-gpu==1.14.0, CPU version can be used too)
+Tensorboard (tensorboard==1.14.0)
+Keras (Keras==2.2.4)
+Opencv-python (opencv-python==4.1.0.25)
+Numpy (numpy==1.16.4)
+Pillow (Pillow==5.4.1)
+Tqdm (tqdm==4.31.1)
