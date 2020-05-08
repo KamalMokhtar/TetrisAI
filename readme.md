@@ -1,58 +1,58 @@
 # Deep Learning Tetris Project
-## testReadme file for the deep learning Tetris project
 
+## Demo of a convolutional neural network playing tetris
 ![Demo - First 10000 points](./demofinal.gif)
-Included in this version:
+
+## Options
 - Fully connected neural network with board as input and two different reward mechanisms (the matrix rewar function and the predicted goodness of board state).
 - Two different convolutional neural networks. One CNN which uses 1 input, another convolutional neural network which uses two times the same input an concatenates branches later on.
 - Ability to load models and play tetris using those models.
-
-About the modes:
+## Modes
 - Training mode lets the model train (possibly from scratch or from an existing model.
 - Play mode lets the saved model play the game.
 - Play mode Nuno faria shows how the original model plays https://github.com/nuno-faria/tetris-ai
 
-Currently implemented strategies:
-    # -------------------In play mode------------------- #
-    # put model name that you want it to play in run.py model_name
-    # set model_number = 1/2/3/4 in run.py depending on the type of model you want to play.
-    # set render_every = 1  in run.py
-    # set agent_play = True in run.py
-    # set fetch_old_model = True in run.py
-    # the model will not be trained nor will be saved
-    # the amount of lines cleared will be saved per run
-    # ------------------- play mode Nuno Faria ------------------- #
-    # set model model_name = 'models/original'
-    # ------- training from scratch mode Nuno Faria ------------------- #
-    # set model_number =  4 in run.py
-    # set agent_play = False in run.py
-    # set rendering = True in run.py
-    # set render_every = 500 (up to you)  in run.py
-    # set fetch_old_model = False in run.py
-    # set the training parameters in run.py (parameters in def dqn():)
-    # set the return function to return score, self.game_over in tetris.py
-    #--training full board from scratch (best state reward function)----- #
-    # set model_number =  1/2/3 in run.py
-    # set agent_play = False in run.py
-    # set rendering = True in run.py
-    # set fetch_old_model = False in run.py
-    # set agent_play = false
-    # set board_state = False
-    #-------------train with matrix reward function---------#
-    # if you want to train using matrix reward function
-    # set the return function to return sum_model_reward, self.game_over in tetris.py
-    # -------------------continue training ------------------- #
-    # continues the model from training with its current weights
-    # keep in mind that it will start exploring in the beginning again depending # on epsilon_stop_episode
-    # put model name that you want it to train in run.py model_name
-    # set model_number = 1/2/3/4 in run.py depending on the type of model you want to train.
-    # set rendering = True in run.py
-    # set render_every = 500 (up to you)  in run.py
-    # set agent_play = False in run.py
-    # set fetch_old_model = True in run.py
-    #---------------------------------------------
+## Implemented strategies
+### -------------------In play mode-----------------
+put model name that you want it to play in run.py model_name
+set model_number = 1/2/3/4 in run.py depending on the type of model you want to play.
+set render_every = 1  in run.py
+set agent_play = True in run.py
+set fetch_old_model = True in run.py
+the model will not be trained nor will be saved
+the amount of lines cleared will be saved per run
+### ------------------- play mode Nuno Faria ------------------- 
+set model model_name = 'models/original'
+#### ------- training from scratch mode Nuno Faria ------------------- 
+set model_number =  4 in run.py
+set agent_play = False in run.py
+set rendering = True in run.py
+set render_every = 500 (up to you)  in run.py
+set fetch_old_model = False in run.py
+set the training parameters in run.py (parameters in def dqn():)
+set the return function to return score, self.game_over in tetris.py
+### --training full board from scratch (best state reward function)----- 
+set model_number =  1/2/3 in run.py
+set agent_play = False in run.py
+set rendering = True in run.py
+set fetch_old_model = False in run.py
+set agent_play = false
+set board_state = False
+### -------------train with matrix reward function---------#
+if you want to train using matrix reward function
+set the return function to return sum_model_reward, self.game_over in tetris.py
+### -------------------continue training ------------------- #
+continues the model from training with its current weights
+keep in mind that it will start exploring in the beginning again depending # on epsilon_stop_episode
+put model name that you want it to train in run.py model_name
+set model_number = 1/2/3/4 in run.py depending on the type of model you want to train.
+set rendering = True in run.py
+set render_every = 500 (up to you)  in run.py
+set agent_play = False in run.py
+set fetch_old_model = True in run.py
+--------------------------------------------
 
-Output files: There are three output files.
+## Output files: There are three output files.
 -The tensorboard file (events.out*****). Model score and training time is saved.
 From the terminal type 'tensorboard --logdir="path/to/folder/"'.
 -The files that log amount of lines cleared (linesfile-***.txt). By setting the filename in plotter.py and running it, a plot of the amount of lines cleared will be showed.
