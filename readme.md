@@ -4,23 +4,23 @@
 ![Demo - First 10000 points](./demofinal.gif)
 
 ## Options
-- Fully connected neural network with board as input and two different reward mechanisms (the matrix rewar function and the predicted goodness of board state).
-- Two different convolutional neural networks. One CNN which uses 1 input, another convolutional neural network which uses two times the same input an concatenates branches later on.
-- Ability to load models and play tetris using those models.
+- Fully connected neural network with board as input and two different reward mechanisms (the matrix rewar function and the predicted goodness of board state).\
+- Two different convolutional neural networks. One CNN which uses 1 input, another convolutional neural network which uses two times the same input an concatenates branches later on.\
+- Ability to load models and play tetris using those models.\
 ## Modes
-- Training mode lets the model train (possibly from scratch or from an existing model.
-- Play mode lets the saved model play the game.
-- Play mode Nuno faria shows how the original model plays https://github.com/nuno-faria/tetris-ai
+- Training mode lets the model train (possibly from scratch or from an existing model.\
+- Play mode lets the saved model play the game.\
+- Play mode Nuno faria shows how the original model plays https://github.com/nuno-faria/tetris-ai.
 
 ## Implemented strategies
 ### In play mode
-put model name that you want it to play in run.py model_name
-set model_number = 1/2/3/4 in run.py depending on the type of model you want to play.
-set render_every = 1  in run.py
-set agent_play = True in run.py
-set fetch_old_model = True in run.py
-the model will not be trained nor will be saved
-the amount of lines cleared will be saved per run
+put model name that you want it to play in run.py model_name\
+set model_number = 1/2/3/4 in run.py depending on the type of model you want to play.\
+set render_every = 1  in run.py\
+set agent_play = True in run.py\
+set fetch_old_model = True in run.py\
+the model will not be trained nor will be saved\
+the amount of lines cleared will be saved per run\
 ### play mode Nuno Faria  
 set model model_name = 'models/original'
 ### training from scratch mode Nuno Faria  
