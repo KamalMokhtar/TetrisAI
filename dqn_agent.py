@@ -129,10 +129,15 @@ class DQNAgent:
         return random.random()
 
     # def predict_value(self, state):
-    def predict_value(self, board):
+    def predict_value(self, board, model_number):
         '''Predicts the score for a certain state'''
         # return self.model.predict(state)[0]
-        return self.model.predict(board)[0]
+        # print("I am predicting")
+        if model_number == 3:
+            return self.model.predict([board, board])[0]
+        else:
+            return self.model.predict(board)[0]
+
 
     # *K I think this is never used
     # def act(self, state):
@@ -144,7 +149,7 @@ class DQNAgent:
     #         return self.predict_value(state)
 
     # def best_state(self, states):
-    def best_board(self, boards, model_play, input_size, board_state):  # states is the value of possible moves
+    def best_board(self, boards, model_play, input_size, model_number):  # states is the value of possible moves
         '''Returns the best board for a given collection of boards'''
         max_value = None
         best_board = None
@@ -155,14 +160,14 @@ class DQNAgent:
                 return random.choice(list(boards))
             else:
                 for board in boards:
-                    if board_state:
-                        value = self.predict_value(np.reshape(board, input_size))#[1, 200] [1, 4]
+                    if model_number == 4:
+                        value = self.predict_value(np.reshape(board, input_size), model_number)#[1, 200] [1, 4]
                         if not max_value or value > max_value:
                             # max_value = value_int
                             max_value = value
                             best_board = board
                     else:
-                        value = self.predict_value(np.reshape(board, input_size))
+                        value = self.predict_value(np.reshape(board, input_size), model_number)
                         value_int = sum(value)
                         if not max_value or value_int > max_value:
                             max_value = value_int
@@ -170,14 +175,14 @@ class DQNAgent:
         # playing
         else:
             for board in boards:
-                if board_state:
-                    value = self.predict_value(np.reshape(board, input_size))  # [1, 200] [1, 4]
+                if model_number == 4:
+                    value = self.predict_value(np.reshape(board, input_size), model_number)  # [1, 200] [1, 4]
                     if not max_value or value > max_value:
                         # max_value = value_int
                         max_value = value
                         best_board = board
                 else:
-                    value = self.predict_value(np.reshape(board, input_size))
+                    value = self.predict_value(np.reshape(board, input_size), model_number)
                     value_int = sum(value)
                     if not max_value or value_int > max_value:
                         max_value = value_int
@@ -217,14 +222,19 @@ class DQNAgent:
 
                 x.append(board)
                 y.append(new_q)
-
+            if model_number == 1 or model_number == 4:
+                #print("train1-4")
+                self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
             if model_number == 2:
+                #print("train2")
                 x = np.reshape(x, (batch_size, 20, 10, 1))
+                self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
             if model_number == 3:
+                #print("train3")
                 x = np.reshape(x, (batch_size, 20, 10, 1))
-                x = [x, x]
+                self.model.fit([x, x], np.array(y), epochs=epochs, verbose=0)
 
-            self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
+
 
             # Update the exploration variable
             if self.epsilon > self.epsilon_min:

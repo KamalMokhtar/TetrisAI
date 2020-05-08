@@ -10,18 +10,18 @@ import itertools
 
 # Run dqn with Tetris
 def dqn():
-
+    # training parameters
     env = Tetris()
-    episodes = 2000  # 2000
+    episodes = 200  # 2000
     max_steps = None
-    epsilon_stop_episode = 15000  # 1500
-    mem_size = 2000 # 20000
+    epsilon_stop_episode = 150  # 1500
+    mem_size = 200 # 20000
     discount = 0.95
-    batch_size = 512  # 512
+    batch_size = 5  # 512
     epochs = 1
-    render_every = 50  # 50
+    render_every = 1  # 50
     log_every = 50  # 50
-    replay_start_size = 2000  # 2000
+    replay_start_size = 200  # 2000
     train_every = 1
     n_neurons = [160, 160, 160, 160, 160]
     render_delay = None
@@ -47,22 +47,27 @@ def dqn():
 
     # all model names, line_logging and the logs will be save with the same time stamp
     # choosing which model to train
-    # 1 full board or board state input also for the nuno_faria
+    # 1 full board or board state input also for the nuno_faria not sure
     # 2 CNN
     # 3 CNN merged
     # 4 Nuno Faria
     model_number = 3
-    model_name = 'models/my_model-20200504-233443-h5'
+    model_name = 'models/my_model-20200508-193953-h5' # my_model-20200504-233443-h5
     # Rendering false for Peregrine
-    board_state = False
+    # board_state = True
     rendering = True
-    fetch_old_model = False
-    agent_play = False
+    fetch_old_model = True
+    agent_play = True
 
-    if board_state:
-        input_size = [1, 4]
-    else:
+
+    if model_number == 1:
         input_size = [1, 200]
+    if model_number == 2:
+        input_size= (1, 20, 10,1)
+    if model_number == 3:
+        input_size = (1, 20, 10, 1)
+    if model_number == 4:
+        input_size = [1, 4]
 
     agent = DQNAgent(env.get_board_size(),
                      n_neurons=n_neurons, activations=activations,
@@ -82,8 +87,9 @@ def dqn():
 
         #current_board = env.reset()
         # env.reset()
-        if board_state:
+        if model_number == 4:
             current_board = [0]*4
+            env.reset()
         else:
             current_board = env.reset()
             #print(current_board)
@@ -101,8 +107,9 @@ def dqn():
 
         # *k Game
         while not done and (not max_steps or steps < max_steps): #agent_train, input_size
-            next_boards = env.get_next_boards(board_state)  # returns the all possible moves in next_state
-            best_board = agent.best_board(next_boards.values(), agent_play, input_size, board_state)
+            next_boards = env.get_next_boards(model_number)  # returns the all possible moves in next_state
+            best_board = agent.best_board(next_boards.values(), agent_play, input_size,
+                                          model_number)
 
             best_action = None
 
@@ -115,12 +122,14 @@ def dqn():
             reward, done = env.play(best_action[0], best_action[1], render=render,
                                     render_delay=render_delay, time_frame=time_frame)
 
-            if board_state:
-                agent.add_to_memory(current_board, next_boards[best_action], reward, done)
-            else:
+            if model_number == 1:
                 agent.add_to_memory(list(itertools.chain.from_iterable(current_board)),
-                                    list(itertools.chain.from_iterable(next_boards[best_action])),
-                                    reward, done)
+                                list(itertools.chain.from_iterable(next_boards[best_action])),
+                                reward, done)
+            else:
+                agent.add_to_memory(current_board, next_boards[best_action], reward, done)
+
+
 
             current_board = next_boards[best_action]
             steps += 1

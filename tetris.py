@@ -232,7 +232,7 @@ class Tetris:
         sum_height, max_height, min_height = self._height(board)
         return [lines, holes, total_bumpiness, sum_height]
 
-    def get_next_boards(self, board_state):
+    def get_next_boards(self, model_number):
         '''Get all possible next states'''
         # states = {}
         board_states = {}
@@ -263,7 +263,7 @@ class Tetris:
                 # Valid move
                 if pos[1] >= 0:
                     board = self._add_piece_to_board(piece, pos)
-                    if board_state:
+                    if model_number == 4:
                         board_states[(x, rotation)] = self._get_board_props(board) # returns (just increment value,angle):
                     else:
                         board_states[(x, rotation)] = board
@@ -322,7 +322,7 @@ class Tetris:
         model_reward = [score * x for x in model_reward]
         sum_model_reward = sum(model_reward)
 
-        return sum_model_reward, self.game_over #sum_model_reward
+        return score, self.game_over #sum_model_reward
 
     def render(self):
         '''Renders the current board'''
