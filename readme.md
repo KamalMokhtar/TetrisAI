@@ -4,12 +4,12 @@
 ![Demo - First 10000 points](./demofinal.gif)
 
 ## Options
-- Fully connected neural network with board as input and two different reward mechanisms (the matrix rewar function and the predicted goodness of board state).\
-- Two different convolutional neural networks. One CNN which uses 1 input, another convolutional neural network which uses two times the same input an concatenates branches later on.\
+- Fully connected neural network with board as input and two different reward mechanisms (the matrix rewar function and the predicted goodness of board state).
+- Two different convolutional neural networks. One CNN which uses 1 input, another convolutional neural network which uses two times the same input an concatenates branches later on.
 - Ability to load models and play tetris using those models.
 ## Modes
-- Training mode lets the model train (possibly from scratch or from an existing model.\
-- Play mode lets the saved model play the game.\
+- Training mode lets the model train (possibly from scratch or from an existing model.
+- Play mode lets the saved model play the game.
 - Play mode Nuno faria shows how the original model plays https://github.com/nuno-faria/tetris-ai.
 
 ## Implemented strategies
