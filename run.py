@@ -1,3 +1,6 @@
+# This is is the main, where parameters of the model can be set
+# also which mode can it run in
+# more detailed information can be found in the readme
 from dqn_agent import DQNAgent
 from tetris import Tetris
 from datetime import datetime
@@ -19,45 +22,29 @@ def dqn():
     discount = 0.95
     batch_size = 2  # 512
     epochs = 1
-    render_every = 10  # 50
+    render_every = 1  # 50
     log_every = 2  # 50
     replay_start_size = 200  # 2000
     train_every = 1
     n_neurons = [160, 160, 160, 160, 160]
     render_delay = None
     activations = ['relu', 'relu', 'relu', 'relu', 'relu', 'linear']
-    # -------------------In play mode------------------- #
-    # put model name that you want it to play in model_name below
-    # set render_every = 1  in line 21
-    # set agent_play below to True
-    # set fetch_old_model below to True
-    # the model will not be trained nor will be saved
-    # the model lines clearing scoring will be saved if you let the model finish the episodes set above
-    # ------------------- play mode Nuno Faria ------------------- #
-    # same steps as in play mode, then
-    # set board_state True
-    # model_name = 'models/original'
-    # ------------------- if training from scratch ------------------- #
-    # set fetch_old_model = False, agent_play = false, board_state = False
-    # ------------------- continue training ------------------- #
-    # can continue the model but keep in mind that it will start exploring in the beginning again
-    # set the model name that you want to continue training from
-    # set fetch_old_model = True, agent_play = false, board_state = false
-    # after the training is done, give the model and the files appropriate name
 
-    # all model names, line_logging and the logs will be save with the same time stamp
+    # all model names, line_logging and the logs will be save with the same time stamp and model_number
     # choosing which model to train
     # 1 full board or board state input also for the nuno_faria not sure
     # 2 CNN
     # 3 CNN merged
     # 4 Nuno Faria
-    model_number = 4
-    model_name = 'models/my_model-20200504-233443-h5' # my_model-20200504-233443-h5     my_model-20200508-193953-h5
+    model_number = 3
+
+    model_name = 'models/my_model-20200509-150301-h5' #demo: my_model-20200509-150301-h5 # my_model-20200504-233443-h5     my_model-20200508-193953-h5
     # Rendering false for Peregrine
     # board_state = True
     rendering = True
-    fetch_old_model = False
-    agent_play = False
+    fetch_old_model = True
+    # if you choose the wrong model number for playing, you will get an error
+    agent_play = True
 
 
     if model_number == 1:
@@ -84,16 +71,11 @@ def dqn():
     scores = []
 
     for episode in tqdm(range(episodes)):
-
-        #current_board = env.reset()
-        # env.reset()
         if model_number == 4:
             current_board = [0]*4
             env.reset()
         else:
             current_board = env.reset()
-            #print(current_board)
-
         done = False
         steps = 0
 
@@ -106,8 +88,8 @@ def dqn():
             render = False
 
         # *k Game
-        while not done and (not max_steps or steps < max_steps): #agent_train, input_size
-            next_boards = env.get_next_boards(model_number)  # returns the all possible moves in next_state
+        while not done and (not max_steps or steps < max_steps):
+            next_boards = env.get_next_boards(model_number)
             best_board = agent.best_board(next_boards.values(), agent_play, input_size,
                                           model_number)
 
@@ -128,9 +110,6 @@ def dqn():
                                 reward, done)
             else:
                 agent.add_to_memory(current_board, next_boards[best_action], reward, done)
-
-
-
             current_board = next_boards[best_action]
             steps += 1
 

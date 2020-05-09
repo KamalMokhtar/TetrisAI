@@ -1,3 +1,5 @@
+# this code runs the tensor board features
+# more information how to run in the readme
 from keras.callbacks import TensorBoard
 import tensorflow as tf
 from tensorflow.summary import FileWriter

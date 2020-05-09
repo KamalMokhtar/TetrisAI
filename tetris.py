@@ -1,3 +1,4 @@
+# This code privides the dynamics of the Tetris game environment
 import random
 import cv2
 import numpy as np
@@ -60,12 +61,6 @@ class Tetris:
             270: [(1, 0), (2, 0), (1, 1), (2, 1)],
         }
     }
-
-    # COLORS = {
-    #     0: (255, 255, 255),
-    #     1: (247, 64, 99),
-    #     2: (0, 167, 247),
-    # }
 
     COLORS = {
         0: (255, 255, 255),
@@ -267,9 +262,6 @@ class Tetris:
                         board_states[(x, rotation)] = self._get_board_props(board) # returns (just increment value,angle):
                     else:
                         board_states[(x, rotation)] = board
-
-                    # [status] only for one piece with all
-                    # possible angles and positions in board
         return board_states
 
     def get_board_state(self):
@@ -306,15 +298,10 @@ class Tetris:
         self._new_round()
         if self.game_over:
             array = np.array(self.linestracker).reshape([1, 5])
-            # self.model.save(f'lines_logging/my_model-{time_frame}')  # creates a HDF5 file
             with open('lines_logging/' + f'linesfile-{time_frame}-{model_number}.txt', 'a') as linesfile:
                 np.savetxt(linesfile, array, fmt="%d", delimiter=' ')
             score -= 2
             reward_log -= 1
-
-
-
-        # previous = self.pre_model_reward
         self.current_reward = self._get_grid_reward(self.board)
         model_reward = np.array(np.array(self.current_reward) - np.array(self.previous_reward))
 

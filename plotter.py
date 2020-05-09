@@ -1,8 +1,10 @@
+# This python code plots the number of lines cleared in each game
+# provide the wished name in filetoread
 import matplotlib.pyplot as plt
 import numpy as np
 
 # here you have to choose which file you would like to plot
-filetoread = 'lines_logging/linesfile-20200504-233443.txt'
+filetoread = 'lines_logging/linesfile-20200509-150301.txt'
 totallinescleared = []
 data = np.loadtxt(filetoread, dtype=int, delimiter=' ')
 x = np.linspace(1, len(data), num=len(data))

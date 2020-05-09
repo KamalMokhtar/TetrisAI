@@ -7,15 +7,6 @@ import numpy as np
 import random
 from datetime import datetime
 
-
-# Deep Q Learning Agent + Maximin
-#
-# This version only provides only value per input,
-# that indicates the score expected in that state.
-# This is because the algorithm will try to find the
-# best final state for the combinations of possible states,
-# in constrast to the traditional way of finding the best
-# action for a particular state.
 class DQNAgent:
     '''Deep Q Learning Agent + Maximin
     Args:
@@ -114,8 +105,6 @@ class DQNAgent:
 
         else:
             print("old model retrieved")
-            # put the name of the model file you want
-            # if you want to have the original ('models/original')
             model = load_model(model_name)
             # plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
         return model
@@ -133,24 +122,12 @@ class DQNAgent:
     # def predict_value(self, state):
     def predict_value(self, board, model_number):
         '''Predicts the score for a certain state'''
-        # return self.model.predict(state)[0]
-        # print("I am predicting")
         if model_number == 3:
             return self.model.predict([board, board])[0]
         else:
             return self.model.predict(board)[0]
 
-
-    # *K I think this is never used
-    # def act(self, state):
-    #     '''Returns the expected score of a certain state'''
-    #     state = np.reshape(state, [1, self.state_size])
-    #     if random.random() <= self.epsilon:
-    #         return self.random_value()
-    #     else:
-    #         return self.predict_value(state)
-
-    # def best_state(self, states):
+    # demo: my_model-20200509-150301-h5
     def best_board(self, boards, model_play, input_size, model_number):  # states is the value of possible moves
         '''Returns the best board for a given collection of boards'''
         max_value = None
@@ -163,9 +140,8 @@ class DQNAgent:
             else:
                 for board in boards:
                     if model_number == 4:
-                        value = self.predict_value(np.reshape(board, input_size), model_number)#[1, 200] [1, 4]
+                        value = self.predict_value(np.reshape(board, input_size), model_number)
                         if not max_value or value > max_value:
-                            # max_value = value_int
                             max_value = value
                             best_board = board
                     else:
@@ -178,9 +154,8 @@ class DQNAgent:
         else:
             for board in boards:
                 if model_number == 4:
-                    value = self.predict_value(np.reshape(board, input_size), model_number)  # [1, 200] [1, 4]
+                    value = self.predict_value(np.reshape(board, input_size), model_number)
                     if not max_value or value > max_value:
-                        # max_value = value_int
                         max_value = value
                         best_board = board
                 else:
@@ -192,10 +167,10 @@ class DQNAgent:
         return best_board
 
     # *k train
-    def train(self, batch_size=1, epochs=1, board=[0] * 200, played_blocks=0,model_number=1):  # batch_size=32 epochs=3
+    def train(self, batch_size=1, epochs=1, board=[0] * 200, played_blocks=0,model_number=1):
         '''Trains the agent'''
         n = len(self.memory)  # this increases with the playing number of blocks
-        if n >= self.replay_start_size and n >= batch_size:  # replay_start_size original 2000 changed to 100
+        if n >= self.replay_start_size and n >= batch_size:
 
             batch = random.sample(self.memory, batch_size)
             next_boards = np.array([x[1] for x in batch])
@@ -225,21 +200,17 @@ class DQNAgent:
                 x.append(board)
                 y.append(new_q)
             if model_number == 1 or model_number == 4:
-                #print("train1-4")
                 self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
             if model_number == 2:
-                #print("train2")
                 x = np.reshape(x, (batch_size, 20, 10, 1))
                 self.model.fit(np.array(x), np.array(y), batch_size=batch_size, epochs=epochs, verbose=0)
             if model_number == 3:
-                #print("train3")
                 x = np.reshape(x, (batch_size, 20, 10, 1))
                 self.model.fit([x, x], np.array(y), epochs=epochs, verbose=0)
-
-
             # Update the exploration variable
             if self.epsilon > self.epsilon_min:
                 self.epsilon -= self.epsilon_decay
 
     def model_save(self, time_frame, model_number):
-        self.model.save(f'models/my_model-{time_frame}-{model_number}-h5')  # creates a HDF5 file
+        # creates a HDF5 file
+        self.model.save(f'models/my_model-{time_frame}-{model_number}-h5')
