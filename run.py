@@ -17,10 +17,10 @@ def dqn():
     epsilon_stop_episode = 150  # 1500
     mem_size = 200 # 20000
     discount = 0.95
-    batch_size = 5  # 512
+    batch_size = 2  # 512
     epochs = 1
-    render_every = 1  # 50
-    log_every = 50  # 50
+    render_every = 10  # 50
+    log_every = 2  # 50
     replay_start_size = 200  # 2000
     train_every = 1
     n_neurons = [160, 160, 160, 160, 160]
@@ -51,13 +51,13 @@ def dqn():
     # 2 CNN
     # 3 CNN merged
     # 4 Nuno Faria
-    model_number = 3
-    model_name = 'models/my_model-20200508-193953-h5' # my_model-20200504-233443-h5
+    model_number = 4
+    model_name = 'models/my_model-20200504-233443-h5' # my_model-20200504-233443-h5     my_model-20200508-193953-h5
     # Rendering false for Peregrine
     # board_state = True
     rendering = True
-    fetch_old_model = True
-    agent_play = True
+    fetch_old_model = False
+    agent_play = False
 
 
     if model_number == 1:
@@ -78,7 +78,7 @@ def dqn():
     time_frame = datetime.now().strftime("%Y%m%d-%H%M%S")
 
     open('lines_logging/' + f'linesfile-{time_frame}.txt', 'w') # creating file for the line logging
-    log_dir = f'logs/tetris-nn={str(n_neurons)}-mem={mem_size}-bs={batch_size}-e={epochs}-{time_frame}'
+    log_dir = f'logs/tetris-nn={str(n_neurons)}-mem={mem_size}-bs={batch_size}-e={epochs}-{time_frame}-{model_number}'
     log = CustomTensorBoard(log_dir=log_dir)
 
     scores = []
@@ -120,7 +120,7 @@ def dqn():
             # Reward each block placed yields 1 point. When clearing lines, the given score is
             # number_lines_cleared^2 × board_width. Losing a game subtracts 1 point.
             reward, done = env.play(best_action[0], best_action[1], render=render,
-                                    render_delay=render_delay, time_frame=time_frame)
+                                    render_delay=render_delay, time_frame=time_frame, model_number=model_number)
 
             if model_number == 1:
                 agent.add_to_memory(list(itertools.chain.from_iterable(current_board)),
@@ -149,7 +149,7 @@ def dqn():
                     max_score=max_score)
     # save the model
     if not agent_play:
-        agent.model_save(time_frame)
+        agent.model_save(time_frame,model_number)
 
 
 if __name__ == "__main__":

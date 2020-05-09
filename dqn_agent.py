@@ -1,6 +1,7 @@
 from keras.models import Sequential, save_model, load_model
 from keras.layers import Dense, Flatten, Conv2D, Input, concatenate
 from keras.models import Model
+from keras.utils.vis_utils import plot_model
 from collections import deque
 import numpy as np
 import random
@@ -116,6 +117,7 @@ class DQNAgent:
             # put the name of the model file you want
             # if you want to have the original ('models/original')
             model = load_model(model_name)
+            # plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
         return model
 
     # current_state, next_state,
@@ -235,10 +237,9 @@ class DQNAgent:
                 self.model.fit([x, x], np.array(y), epochs=epochs, verbose=0)
 
 
-
             # Update the exploration variable
             if self.epsilon > self.epsilon_min:
                 self.epsilon -= self.epsilon_decay
 
-    def model_save(self, time_frame):
-        self.model.save(f'models/my_model-{time_frame}-h5')  # creates a HDF5 file
+    def model_save(self, time_frame, model_number):
+        self.model.save(f'models/my_model-{time_frame}-{model_number}-h5')  # creates a HDF5 file

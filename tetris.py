@@ -280,7 +280,7 @@ class Tetris:
         '''Size of the board'''
         return 200
 
-    def play(self, x, rotation, render=False, render_delay=None, time_frame=0):
+    def play(self, x, rotation, render=False, render_delay=None, time_frame=0,model_number=1):
 
         '''Makes a play given a position and a rotation, returning the reward and if the game is over'''
         self.current_pos = [x, 0]
@@ -307,7 +307,7 @@ class Tetris:
         if self.game_over:
             array = np.array(self.linestracker).reshape([1, 5])
             # self.model.save(f'lines_logging/my_model-{time_frame}')  # creates a HDF5 file
-            with open('lines_logging/' + f'linesfile-{time_frame}.txt', 'a') as linesfile:
+            with open('lines_logging/' + f'linesfile-{time_frame}-{model_number}.txt', 'a') as linesfile:
                 np.savetxt(linesfile, array, fmt="%d", delimiter=' ')
             score -= 2
             reward_log -= 1

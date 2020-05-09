@@ -1,4 +1,7 @@
 /venv/
 .idea/
+logs/
+lines_logging/
+models/
 **/__pycache__/
 
